@@ -115,8 +115,9 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
-        WaveManager.instance.frequency = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
-        
+		if (WaveManager.instance != null) {
+			WaveManager.instance.frequency = chooseTopOvertoneSampleIndices (numOvertoneSamples, localMaximums, 10.7f);
+		}
 
         aso.GetOutputData(volumeSamples, 0);
 

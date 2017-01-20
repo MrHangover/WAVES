@@ -19,7 +19,7 @@ public class WaveManager : MonoBehaviour {
     public int pillarLayer = 0;
     [Range(-20f, 20f)]
     public float scrollSpeed = 5f;
-    public float frequency = 1f;
+	public List<float> frequency = new List<float>() {0,0,0};
     public float amplitude = 1f;
     public GameObject pillar;
 
@@ -70,13 +70,17 @@ public class WaveManager : MonoBehaviour {
                 if (scrollSpeed >= 0f)
                 {
                     pillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i,
-                                                                pillars[i].startYPos + Mathf.Sin(pillars[i].transform.position.x * frequency) * amplitude,
+                                                                pillars[i].startYPos +  Mathf.Sin(pillars[i].transform.position.x * frequency[0]) + 
+																						Mathf.Sin(pillars[i].transform.position.x * frequency[1]) +
+																						Mathf.Sin(pillars[i].transform.position.x * frequency[2]) * amplitude,
                                                                 pillarLayer);
                 }
                 else
                 {
                     pillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
-                                                                pillars[i].startYPos + Mathf.Sin(pillars[i].transform.position.x * frequency) * amplitude,
+																						pillars[i].startYPos + Mathf.Sin(pillars[i].transform.position.x * frequency[0]) + 
+																						Mathf.Sin(pillars[i].transform.position.x * frequency[1]) +
+																						Mathf.Sin(pillars[i].transform.position.x * frequency[2]) * amplitude,
                                                                 pillarLayer);
                 }
 
