@@ -30,8 +30,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float volumeRef = 0.1f;
 	public float specScale = 20f;
 
+    public int numOvertoneSamples = 3;
+    SortedDictionary<float, int> localMaximums;
+    float currentLocalMaximum;
 
-	void Start() {
+    void Start() {
 		aso.clip = Microphone.Start (micstring, true, 1, 44100);
 		aso.Play ();
 		aso.loop = true;
@@ -51,7 +54,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 			thebarsleft[i].transform.localScale = new Vector3(width,1,0.2f);
 		}
 
-	}
+        localMaximums = new SortedDictionary<float, int>();
+        currentLocalMaximum = -1;
+    }
 
 	// Update is called once per frame
 	void Update () {
@@ -59,9 +64,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 		aso.GetSpectrumData (numberleft, 0,FFTWindow.BlackmanHarris);
 
-		//	22050/samplenumber = 21
+		//	22050/samplenumber = 10.7
 		//	TO FIND ELEMENT IN ARRAY: 
-		//	FrequencyYouWant / 21(result from last)
+		//	FrequencyYouWant / 10.7(result from last)
 		// 441 Hz -> [21]. that's then numberleft[21]
 
 
@@ -95,8 +100,12 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 				thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
 
-			}
-		}
+                //specLeft is the amplitude registered for the current frequency range
+                registerLocalMaximums(specLeft, i, ref currentLocalMaximum, localMaximums);
+            }
+        }
+
+        chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
 
 		AudioListener.GetOutputData (volumeSamples, 0);
 
@@ -115,4 +124,50 @@ public class FrequencyAnalysis : MonoBehaviour {
 		//volumenumber * volumeScale
 
 	}
+
+
+
+    void registerLocalMaximums(float input, int position, ref float currentLocalMaximum, SortedDictionary<float,int> savedLocalMaximums)
+    {
+        if( input >= currentLocalMaximum)
+        {
+            currentLocalMaximum = input;
+            
+        }
+        else
+        {
+            if(savedLocalMaximums.ContainsKey(currentLocalMaximum))
+            {
+                currentLocalMaximum += 0.000001f;// it can happen that two local maximums are exactly the same
+            }
+            savedLocalMaximums.Add(currentLocalMaximum, position);
+            currentLocalMaximum = -1;
+        }
+    }
+
+    float[] chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
+    {
+        float[] overtoneSamples = new float[numOvertoneSamples];
+
+        //sort samples by size;
+        //savedLocalMaximums.Sort();
+        savedLocalMaximums.Reverse();
+        for(int i = 0; i < numOvertoneSamples; i++)
+        {
+            if (savedLocalMaximums.Count < 1)
+            {
+                break;
+            }
+            KeyValuePair<float,int> kvp = savedLocalMaximums.First();
+            overtoneSamples[i] = kvp.Value * indexScaler;
+            savedLocalMaximums.Remove(kvp.Key);
+            Debug.Log("savedLocalMaximums[i]: "+ overtoneSamples[i] + "; * indexScaler "+ indexScaler);
+        }
+
+        savedLocalMaximums.Clear();
+        return overtoneSamples;
+    }
+
+    
+
 }

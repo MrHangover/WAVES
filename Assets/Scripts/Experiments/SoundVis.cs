@@ -6,7 +6,7 @@ public class SoundVis : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		//Microphone.
 	}
 	
 	// Update is called once per frame
