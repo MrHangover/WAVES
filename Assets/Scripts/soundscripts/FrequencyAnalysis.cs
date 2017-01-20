@@ -35,6 +35,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	void Start() {
 		aso.clip = Microphone.Start (micstring, true, 1, 44100);
+		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
 		aso.loop = true;
 
@@ -111,6 +112,15 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 		//transform.localScale = new Vector3 (transform.localScale.x, (volumenumber) * volumeScale, 1); 
 		outputVolume = volumenumber * volumeScale;
+
+		if (outputVolume > 4f) {
+			outputVolume = 4f;
+		}
+
+		if (WaveManager.instance != null) {
+			WaveManager.instance.amplitude = outputVolume;
+		}
+
 
 	}
 }
