@@ -9,7 +9,7 @@ public class WaveObject : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-        WaveManager.instance.AddWaveObject(waveLayer, gameObject);
+        //WaveManager.instance.AddWaveObject(waveLayer, gameObject);
 	}
 	
 	// Update is called once per frame
