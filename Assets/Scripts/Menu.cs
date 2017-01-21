@@ -15,6 +15,8 @@ public class Menu : MonoBehaviour {
 	[SerializeField] Text noiseText;
 	[SerializeField] GameObject menuPanel;
 
+	[SerializeField] GameObject calibration;
+
 	// Use this for initialization
 	void Start () {
 		for (int i = 0; i < Microphone.devices.Length; i++) {
@@ -69,7 +71,23 @@ public class Menu : MonoBehaviour {
 		noiseText.text = noiseLevel.ToString();
 	}
 
+	public void OnMaxChange(Slider sl){
+		if (FrequencyAnalysis.instance != null) {
+			FrequencyAnalysis.instance.calibrationFreqMax = sl.value;
+			print ("CHANGING MAX " + sl.value);
+		}
+	}
 
+	public void OnMinChange(Slider sl){
+		if (FrequencyAnalysis.instance != null) {
+			FrequencyAnalysis.instance.calibrationFreqMin = sl.value;
+		}
+	}
+
+
+	public void StartCalibration(){
+		calibration.SetActive (true);
+	}
 
 
 }

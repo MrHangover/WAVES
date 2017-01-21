@@ -53,7 +53,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float outputVolume;
 	public float micVolumeScale = 1;
 	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();//why do we need this public variable if we're already sending it to WaveManager.instance.frequencyAndAmp?
+	public float avgFreq = 0;
 
+	public float calibrationFreqMin = 0f, calibrationFreqMax = 684.8f;
 
 	void Awake () {
 		if(instance == null)
@@ -210,12 +212,13 @@ public class FrequencyAnalysis : MonoBehaviour {
 				ResetMicrophone (2);
 			}
 		}
-
-		//foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
-		//	print (kvp.Key);
-		//}
+		avgFreq = 0;
+		foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
+			avgFreq += kvp.Key;
+		}
+		avgFreq /= frequencyAndAmp.Count;
 		//print ("----------------------------");
-		//print (frequencyAndAmp[0].Key+"        "+frequencyAndAmp[1].Key+"       "+frequencyAndAmp[2].Key);
+		print (avgFreq);
 	}
 
 
@@ -287,7 +290,6 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 
 
-
 		if (overtonesFreqAndAmp.Count == 0) {
 			overtonesFreqAndAmp.Add (1, 0);
 		}
@@ -305,6 +307,15 @@ public class FrequencyAnalysis : MonoBehaviour {
 		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
+	}
+
+	public void SetCalibrationFrequencies(float min, float max){
+		calibrationFreqMin = min;
+		calibrationFreqMax = max;
+	}
+
+	public float MapToCalibration(float freqtoMap){
+		return (((freqtoMap - calibrationFreqMin) * (calibrationFreqMax - calibrationFreqMin)) / (684.8f - 0f)) + calibrationFreqMin;
 	}
 
 }
