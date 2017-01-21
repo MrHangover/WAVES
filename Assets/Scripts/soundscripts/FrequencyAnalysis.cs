@@ -36,17 +36,18 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float noiseLevel = 0.7f;
 	public float lerpSpeed = 1.5f;
 
-	
-    	public int numOvertoneSamples = 3;
-    	SortedDictionary<float, int> localMaximums;
 
-    	float currentLocalMaximum;
+	public int numOvertoneSamples = 3;
+	SortedDictionary<float, int> localMaximums;
+
+	float currentLocalMaximum;
 
 	
 
 
     void Start() {
-		aso.clip = Microphone.Start (micstring, true, 1, 44100);
+		print (Microphone.devices.Length);
+		aso.clip = Microphone.Start (Microphone.devices[0], true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
 		aso.loop = true;
