@@ -184,8 +184,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 		outputVolume = Mathf.Lerp(prevVolume, ((volumenumber * volumeScale)*micVolumeScale) + noiseLevel,Time.deltaTime*lerpSpeed);
 
 
-		if (outputVolume > 1f) {
-			outputVolume = 1f;
+		if (outputVolume > 4f) {
+			outputVolume = 4f;
 		}
 
 		if (WaveManager.instance != null) {
