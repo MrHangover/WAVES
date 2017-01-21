@@ -8,7 +8,7 @@ public class Menu : MonoBehaviour {
 
 	public List<Button> mics = new List<Button>();
 
-	float micVolumeScale = 1;
+	float micVolumeScale = 5;
 	float noiseLevel = 0;
 
 	[SerializeField] Text volumeText;
