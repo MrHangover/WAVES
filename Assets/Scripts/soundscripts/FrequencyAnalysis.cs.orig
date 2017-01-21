@@ -33,19 +33,22 @@ public class FrequencyAnalysis : MonoBehaviour {
 	float prevVolume;
 	float outputVolume;
 
-	public float noiseLevel = 0.7f;
-	public float lerpSpeed = 1.5f;
+<<<<<<< HEAD
 
-	
-    	public int numOvertoneSamples = 3;
+	public int numOvertoneSamples = 3;
     	SortedDictionary<float, int> localMaximums;
-
     	float currentLocalMaximum;
 
 	
 
 
     void Start() {
+=======
+	public float noiseLevel = 0.7f;
+	public float lerpSpeed = 1.5f;
+
+	void Start() {
+>>>>>>> 136e081e11d74161f7564bfcc69b764112cd051b
 		aso.clip = Microphone.Start (micstring, true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
@@ -115,14 +118,12 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
-		if (WaveManager.instance != null) {
-			WaveManager.instance.frequency = chooseTopOvertoneSampleIndices (numOvertoneSamples, localMaximums, 10.7f);
-		}
+chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
 
-        aso.GetOutputData(volumeSamples, 0);
+aso.GetOutputData (volumeSamples, 0);
 
-        prevVolume = outputVolume;
 
+		prevVolume = outputVolume;
 
 		volumenumber = 0f;
 		for (int j = 0; j < numSamples; j++) {
@@ -148,6 +149,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 	}
 
 
+<<<<<<< HEAD
 
     void registerLocalMaximums(float input, int position, ref float currentLocalMaximum, SortedDictionary<float,int> savedLocalMaximums)
     {
@@ -167,9 +169,9 @@ public class FrequencyAnalysis : MonoBehaviour {
         }
     }
 
-    List<float> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
+    float[] chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
     {
-        List<float> overtoneSamples = new List<float>();
+        float[] overtoneSamples = new float[numOvertoneSamples];
 
         //sort samples by size;
         //savedLocalMaximums.Sort();
@@ -181,7 +183,7 @@ public class FrequencyAnalysis : MonoBehaviour {
                 break;
             }
             KeyValuePair<float,int> kvp = savedLocalMaximums.First();
-            overtoneSamples.Add(kvp.Value * indexScaler);
+            overtoneSamples[i] = kvp.Value * indexScaler;
             savedLocalMaximums.Remove(kvp.Key);
             Debug.Log("savedLocalMaximums[i]: "+ overtoneSamples[i] + "; * indexScaler "+ indexScaler);
         }
@@ -192,4 +194,6 @@ public class FrequencyAnalysis : MonoBehaviour {
 
     
 
+=======
+>>>>>>> 136e081e11d74161f7564bfcc69b764112cd051b
 }
