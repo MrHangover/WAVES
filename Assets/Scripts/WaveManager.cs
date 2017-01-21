@@ -58,13 +58,14 @@ public class WaveManager : MonoBehaviour {
         Vector2 pillarPos = pillars[0].body.position;
         if (scrollSpeed >= 0f)
         {
-            Debug.Log("Scrolling left!");
+            //Debug.Log("Scrolling left!");
             //pillars[0].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+
             pillarPos = pillars[0].body.position;
         }
         else
         {
-            Debug.Log("Scrolling right!");
+            //Debug.Log("Scrolling right!");
             //pillars[pillars.Count - 1].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = pillars[pillars.Count - 1].body.position;
         }
@@ -73,6 +74,7 @@ public class WaveManager : MonoBehaviour {
         {
             if (pillars[i] != null)
             {
+				
                 if (useGaussian)
                 {
                     float freq = 0f;
@@ -99,11 +101,12 @@ public class WaveManager : MonoBehaviour {
 
                 else
                 {
-                    float sins = 0;
-                    foreach (KeyValuePair<float, float> faa in frequencyAndAmp)
-                    {
-                        sins += (Mathf.Sin(pillars[i].body.position.x * faa.Key * faa.Value));
-                    }
+					float sins = 0;
+					foreach(KeyValuePair<float,float> faa in frequencyAndAmp){
+						float freq = (faa.Key / 684.8f) * 4f;
+						sins += (Mathf.Sin(pillars[i].body.position.x * freq * faa.Value * FrequencyAnalysis.instance.micVolumeScale + FrequencyAnalysis.instance.noiseLevel));
+					}
+
 
                     if (scrollSpeed >= 0f)
                     {
