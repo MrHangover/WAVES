@@ -75,18 +75,25 @@ public class WaveManager : MonoBehaviour {
             {
                 if (useGaussian)
                 {
+                    float freq = 0f;
+                    float amp = 0f;
+                    if(frequencyAndAmp.Count > 0)
+                    {
+                        freq = frequencyAndAmp[0].Key / 25f - 15f;
+                        amp = frequencyAndAmp[0].Value * 2f;
+                    }
                     //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
                     if (scrollSpeed >= 0f)
                     {
 
                         pillars[i].body.position = new Vector2(pillarPos.x + PILLAR_WIDTH * i,
-                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amplitude, singleFrequency));
+                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
                     }
                     else
                     {
 
                         pillars[i].body.position = new Vector2(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
-                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amplitude, singleFrequency));
+                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
                     }
                 }
 
