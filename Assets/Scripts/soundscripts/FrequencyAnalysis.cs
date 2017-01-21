@@ -53,6 +53,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float outputVolume;
 	public float micVolumeScale = 1;
 	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();//why do we need this public variable if we're already sending it to WaveManager.instance.frequencyAndAmp?
+	public float avgFreq = 0;
 
 	public float calibrationFreqMin = 0f, calibrationFreqMax = 684.8f;
 
@@ -211,12 +212,13 @@ public class FrequencyAnalysis : MonoBehaviour {
 				ResetMicrophone (2);
 			}
 		}
-
-		//foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
-		//	print (kvp.Key);
-		//}
+		avgFreq = 0;
+		foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
+			avgFreq += kvp.Key;
+		}
+		avgFreq /= frequencyAndAmp.Count;
 		//print ("----------------------------");
-		//print (frequencyAndAmp[0].Key+"        "+frequencyAndAmp[1].Key+"       "+frequencyAndAmp[2].Key);
+		print (avgFreq);
 	}
 
 
@@ -285,7 +287,6 @@ public class FrequencyAnalysis : MonoBehaviour {
         //    Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
        // Debug.Log("______________________________________________________");
-
 
 
 

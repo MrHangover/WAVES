@@ -84,7 +84,7 @@ public class WaveManager : MonoBehaviour {
         {
 			if (FrequencyAnalysis.instance != null) {
 				//freq = MapToCalibration((FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key)));
-				freq = TotalMap(frequencyAndAmp[0].Key);
+				freq = TotalMap(FrequencyAnalysis.instance.avgFreq);
 				amp = Mathf.Clamp (frequencyAndAmp [0].Value * amplitudeModifier, 0, 10f);
 			}
 
@@ -347,7 +347,7 @@ public class WaveManager : MonoBehaviour {
 	}
 
 	public float TotalMap(float freqtoMap){
-		float mapmax = 15; float mapmin = -15;
+		float mapmax = 10; float mapmin = -20;
 		return (((freqtoMap - mapmin) * (mapmax - mapmin)) / (684.8f - 0)) + mapmin;
 	}
 
