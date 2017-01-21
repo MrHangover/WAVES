@@ -22,6 +22,8 @@ public class Menu : MonoBehaviour {
 				mics [i].GetComponentInChildren<Text> ().text = Microphone.devices [i];
 			}
 		}
+		volumeText.text = micVolumeScale.ToString ();
+		noiseText.text = noiseLevel.ToString();
 	}
 	
 	// Update is called once per frame
@@ -52,8 +54,8 @@ public class Menu : MonoBehaviour {
 
 	public void OnSliderChange(Slider sl){
 		micVolumeScale = sl.value;
-		if (FrequencyAnalysis.instance != null) {
-			FrequencyAnalysis.instance.micVolumeScale = micVolumeScale;
+		if (WaveManager.instance != null) {
+			WaveManager.instance.amplitudeModifier = micVolumeScale;
 		}
 		volumeText.text = micVolumeScale.ToString ();
 

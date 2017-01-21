@@ -212,9 +212,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 		}
 
 		foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
-			print (kvp.Key);
+		//	print (kvp.Key);
 		}
-		print ("----------------------------");
+		//print ("----------------------------");
 		//print (frequencyAndAmp[0].Key+"        "+frequencyAndAmp[1].Key+"       "+frequencyAndAmp[2].Key);
 
 	}

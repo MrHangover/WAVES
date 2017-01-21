@@ -29,6 +29,7 @@ public class WaveManager : MonoBehaviour {
     public float singleFrequency = 0f;
     public GameObject[] pillar;
 
+	public float amplitudeModifier = 2f;
 
     //Privates
     List<WaveObject> pillars;
@@ -84,8 +85,8 @@ public class WaveManager : MonoBehaviour {
                     float amp = 0f;
                     if(frequencyAndAmp.Count > 0)
                     {
-                        freq = frequencyAndAmp[0].Key / 25f - 15f;
-						amp = Mathf.Clamp (frequencyAndAmp [0].Value * 2f, 0, 5);
+						freq = (frequencyAndAmp[0].Key / 684.8f) * 25 - 15f;
+						amp = Mathf.Clamp (frequencyAndAmp [0].Value * amplitudeModifier, 0, 10f);
                     }
                     //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
                     if (scrollSpeed >= 0f)
