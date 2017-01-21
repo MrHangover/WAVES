@@ -125,8 +125,15 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
-        //chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
-        WaveManager.instance.frequency = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+        if (WaveManager.instance != null)
+        { 
+            WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+        }
+        else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
+        {
+            chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+        }
+
 
 
         aso.GetOutputData(volumeSamples, 0);
@@ -186,7 +193,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 
     /// <summary>
     /// Returns a dictionary (list of key value pairs) of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
-    /// Knowing the amplitude of each frequency is important because if you get 6 samples maybe only the first 2 are very loud. Or maybe they are all very silent.
+    /// Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. Or maybe they are all very silent.
     /// Iterate through a dictionary like this:
     ///     foreach(KeyValuePair<string, string> entry in myDic)
     ///     {
