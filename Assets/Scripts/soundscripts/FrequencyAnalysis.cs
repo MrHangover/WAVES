@@ -31,7 +31,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float volumeScale = 10;
 	float volumeRef = 0.1f;
 	float specScale = 20f;
+	float prevVolume;
 	float outputVolume;
+
+	public float noiseLevel = 0.7f;
+	public float lerpSpeed = 1.5f;
 
 	void Start() {
 		aso.clip = Microphone.Start (micstring, true, 1, 44100);
@@ -101,6 +105,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 		aso.GetOutputData (volumeSamples, 0);
 
+		prevVolume = outputVolume;
 
 		volumenumber = 0f;
 		for (int j = 0; j < numSamples; j++) {
@@ -111,7 +116,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 		volumenumber = (1 / Mathf.Abs (20 * Mathf.Log10 (volumenumber / volumeRef))); //convert to dB
 
 		//transform.localScale = new Vector3 (transform.localScale.x, (volumenumber) * volumeScale, 1); 
-		outputVolume = volumenumber * volumeScale;
+		outputVolume = Mathf.Lerp(prevVolume, volumenumber * volumeScale - noiseLevel,Time.deltaTime*lerpSpeed);
+
 
 		if (outputVolume > 4f) {
 			outputVolume = 4f;
@@ -126,4 +132,6 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 
 	}
+
+
 }
