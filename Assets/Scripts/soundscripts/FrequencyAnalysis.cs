@@ -37,12 +37,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 	public float lerpSpeed = 1.5f;
 
 
-	public int numOvertoneSamples = 3;
-	SortedDictionary<float, int> localMaximums;
+    public int numOvertoneSamples = 3;
+    SortedDictionary<float, int> localMaximums;
+    KeyValuePair<float, int> currentLocalMaximum;
+    bool canSaveLM = true;
 
-	float currentLocalMaximum;
-
-	
 
 
     void Start() {
@@ -68,7 +67,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 			}
 		}
         localMaximums = new SortedDictionary<float, int>();
-        currentLocalMaximum = -1;
+        currentLocalMaximum = new KeyValuePair<float, int>(-1,-1);
     }
 
 	// Update is called once per frame
@@ -108,17 +107,35 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 				//print (numberleft[i]+" "+numberright[i]);
 
+               
 				if (bars) {
 					thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
 				}
+
+                /*
+                //testing
+                if (i % 10 == 0)
+                {
+                    specLeft = 0.6f + i/60 + Random.Range(0,0.4f);
+                }
+                else
+                    specLeft = 0;
+                */
                 //specLeft is the amplitude registered for the current frequency range
-                registerLocalMaximums(specLeft, i, ref currentLocalMaximum, localMaximums);
+                registerLocalMaximums(specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
             }
         }
 
-		if (WaveManager.instance != null) {
-			WaveManager.instance.frequency = chooseTopOvertoneSampleIndices (numOvertoneSamples, localMaximums, 10.7f);
-		}
+        if (WaveManager.instance != null)
+        { 
+            WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+        }
+        else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
+        {
+            chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+        }
+
+
 
         aso.GetOutputData(volumeSamples, 0);
 
@@ -150,45 +167,69 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 
 
-    void registerLocalMaximums(float input, int position, ref float currentLocalMaximum, SortedDictionary<float,int> savedLocalMaximums)
+    void registerLocalMaximums(float input, int position, ref KeyValuePair<float, int> currentLocalMaximum, ref bool canSaveLM, SortedDictionary<float,int> savedLocalMaximums)
     {
-        if( input >= currentLocalMaximum)
+        position++;//avoids zero indexing
+        
+        if ( input >= currentLocalMaximum.Key 
+            )
         {
-            currentLocalMaximum = input;
-            
+            currentLocalMaximum = new KeyValuePair<float, int>(input, position);
+            canSaveLM = true;
+
         }
         else
         {
-            if(savedLocalMaximums.ContainsKey(currentLocalMaximum))
+            if (canSaveLM && !savedLocalMaximums.ContainsKey(currentLocalMaximum.Key))
             {
-                currentLocalMaximum += 0.000001f;// it can happen that two local maximums are exactly the same
+                savedLocalMaximums.Add(currentLocalMaximum.Key, currentLocalMaximum.Value);
+                //currentLocalMaximum = new KeyValuePair<float, int>(-1, -1);
+                canSaveLM = false;
             }
-            savedLocalMaximums.Add(currentLocalMaximum, position);
-            currentLocalMaximum = -1;
+
+            currentLocalMaximum = new KeyValuePair<float, int>(input, position);
         }
+
     }
 
-    List<float> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
+    /// <summary>
+    /// Returns a dictionary (list of key value pairs) of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
+    /// Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. Or maybe they are all very silent.
+    /// Iterate through a dictionary like this:
+    ///     foreach(KeyValuePair<string, string> entry in myDic)
+    ///     {
+    ///         do something with entry.Value or entry.Key
+    ///     }
+    /// </summary>
+    /// <param name="numOvertoneSamples"></param>
+    /// <param name="savedLocalMaximums"></param>
+    /// <param name="indexScaler"></param>
+    /// <returns></returns>
+    Dictionary<float, float> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
     {
-        List<float> overtoneSamples = new List<float>();
+        Dictionary<float, float> overtonesFreqAndAmp = new Dictionary<float, float>();
+        currentLocalMaximum = new KeyValuePair<float, int>(-1, -1);
 
         //sort samples by size;
         //savedLocalMaximums.Sort();
-        savedLocalMaximums.Reverse();
-        for(int i = 0; i < numOvertoneSamples; i++)
+        for (int i = 0; i < numOvertoneSamples; i++)
         {
+            
             if (savedLocalMaximums.Count < 1)
             {
                 break;
             }
-            KeyValuePair<float,int> kvp = savedLocalMaximums.First();
-            overtoneSamples.Add(kvp.Value * indexScaler);
+            KeyValuePair<float,int> kvp = savedLocalMaximums.Last();
+            overtonesFreqAndAmp.Add(kvp.Value * indexScaler, kvp.Key);
             savedLocalMaximums.Remove(kvp.Key);
-            Debug.Log("savedLocalMaximums[i]: "+ overtoneSamples[i] + "; * indexScaler "+ indexScaler);
+            
+            Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
+        Debug.Log("______________________________________________________");
+
 
         savedLocalMaximums.Clear();
-        return overtoneSamples;
+        return overtonesFreqAndAmp;
     }
 
     
