@@ -6,6 +6,9 @@ using System.Linq;
 
 public class FrequencyAnalysis : MonoBehaviour {
 
+	//Public statics
+	public static FrequencyAnalysis instance = null;
+
 	string micstring = "Built-in Microphone";
 
 	public AudioSource aso;
@@ -25,13 +28,12 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	public float pitch;
 	float threshold = 0.02f;
-	
-	[Range(0,100)]
-	public float volumeScale = 10;
+
+	[SerializeField] float volumeScale = 5;
 	float volumeRef = 0.1f;
 	float specScale = 20f;
 	float prevVolume;
-	float outputVolume;
+
 
 	public float noiseLevel = 0.7f;
 	public float lerpSpeed = 1.5f;
@@ -43,10 +45,30 @@ public class FrequencyAnalysis : MonoBehaviour {
     bool canSaveLM = true;
 
 
+	int microphoneNr = 0;
+
+
+	//Public Variables
+	public float outputVolume;
+	public float micVolumeScale = 1;
+	public  Dictionary<float, float> frequencyAndAmp = new Dictionary<float, float>();
+
+
+	void Awake () {
+		if(instance == null)
+		{
+			instance = this;
+		}
+		else if(instance != this)
+		{
+			Destroy(gameObject);
+		}
+		DontDestroyOnLoad(gameObject);
+	}
 
     void Start() {
 		print (Microphone.devices.Length);
-		aso.clip = Microphone.Start (Microphone.devices[0], true, 1, 44100);
+		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
 		aso.loop = true;
@@ -126,9 +148,10 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
+		//frequencyAndAmp = 
         if (WaveManager.instance != null)
         { 
-            WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+				WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);;
         }
         else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
         {
@@ -136,6 +159,8 @@ public class FrequencyAnalysis : MonoBehaviour {
         }
 
 
+
+		/// VOLUME -----------
 
         aso.GetOutputData(volumeSamples, 0);
 
@@ -151,7 +176,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 		volumenumber = (1 / Mathf.Abs (20 * Mathf.Log10 (volumenumber / volumeRef))); //convert to dB
 
 		//transform.localScale = new Vector3 (transform.localScale.x, (volumenumber) * volumeScale, 1); 
-		outputVolume = Mathf.Lerp(prevVolume, volumenumber * volumeScale - noiseLevel,Time.deltaTime*lerpSpeed);
+		outputVolume = Mathf.Lerp(prevVolume, ((volumenumber * volumeScale)*micVolumeScale) + noiseLevel,Time.deltaTime*lerpSpeed);
 
 
 		if (outputVolume > 4f) {
@@ -162,6 +187,28 @@ public class FrequencyAnalysis : MonoBehaviour {
 			WaveManager.instance.amplitude = outputVolume;
 		}
 
+
+
+		if (Input.GetKey (KeyCode.Alpha1)) {
+			if (Microphone.devices.Length > 0) {
+				ResetMicrophone (0);
+			}
+		}
+		if (Input.GetKey (KeyCode.Alpha2)) {
+			if (Microphone.devices.Length > 1) {
+				ResetMicrophone (1);
+			}
+		}
+		if (Input.GetKey (KeyCode.Alpha3)) {
+			if (Microphone.devices.Length > 2) {
+				
+				ResetMicrophone (2);
+			}
+		}
+
+		//if () {
+			print (outputVolume);
+		//}
 
 	}
 
@@ -223,15 +270,24 @@ public class FrequencyAnalysis : MonoBehaviour {
             overtonesFreqAndAmp.Add(kvp.Value * indexScaler, kvp.Key);
             savedLocalMaximums.Remove(kvp.Key);
             
-            Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
+        //    Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
-        Debug.Log("______________________________________________________");
+       // Debug.Log("______________________________________________________");
 
 
         savedLocalMaximums.Clear();
         return overtonesFreqAndAmp;
     }
 
-    
+ 
+
+
+
+	public void ResetMicrophone(int nr){
+		microphoneNr = nr;
+		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
+		while (!(Microphone.GetPosition(null) > 0)){}
+		aso.Play ();
+	}
 
 }
