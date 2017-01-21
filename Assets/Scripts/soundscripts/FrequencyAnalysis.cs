@@ -145,7 +145,10 @@ public class FrequencyAnalysis : MonoBehaviour {
                     specLeft = 0;
                 */
                 //specLeft is the amplitude registered for the current frequency range
-                registerLocalMaximums(specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
+				//if(i > 3){
+					registerLocalMaximums(specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
+				//}
+               
 
             }
         }
@@ -181,8 +184,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 		outputVolume = Mathf.Lerp(prevVolume, ((volumenumber * volumeScale)*micVolumeScale) + noiseLevel,Time.deltaTime*lerpSpeed);
 
 
-		if (outputVolume > 4f) {
-			outputVolume = 4f;
+		if (outputVolume > 1f) {
+			outputVolume = 1f;
 		}
 
 		if (WaveManager.instance != null) {
@@ -207,9 +210,12 @@ public class FrequencyAnalysis : MonoBehaviour {
 				ResetMicrophone (2);
 			}
 		}
-			
-		//print (frequencyAndAmp[0].Key+" "+frequencyAndAmp[0].Value);
 
+		foreach(KeyValuePair<float,float> kvp in frequencyAndAmp){
+			print (kvp.Key);
+		}
+		//print ("----------------------------");
+		//print (frequencyAndAmp[0].Key+"        "+frequencyAndAmp[1].Key+"       "+frequencyAndAmp[2].Key);
 	}
 
 
@@ -249,11 +255,12 @@ public class FrequencyAnalysis : MonoBehaviour {
     /// <returns></returns>
 	List<KeyValuePair<float, float>> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
     {
-		List<KeyValuePair<float, float>> overtonesFreqAndAmp = new List<KeyValuePair<float, float>>();
+		SortedDictionary<float, float> overtonesFreqAndAmp = new SortedDictionary<float, float>();
         currentLocalMaximum = new KeyValuePair<float, int>(-1, -1);
 
+		float max = savedLocalMaximums.Last().Key;
+
         //sort samples by size;
-        //savedLocalMaximums.Sort();
         for (int i = 0; i < numOvertoneSamples; i++)
         {
             
@@ -263,21 +270,30 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
             KeyValuePair<float,int> kvp = savedLocalMaximums.Last();
 
+			// remove low amp outliers among the max values
+
+			if (kvp.Key < max / 2) {
+				break;
+			}
+
 			if (kvp.Value > freqAmpThreshold) {
-				overtonesFreqAndAmp.Add (new KeyValuePair<float, float> (kvp.Value * indexScaler, kvp.Key));
+				overtonesFreqAndAmp.Add (kvp.Value * indexScaler, kvp.Key);
 				savedLocalMaximums.Remove (kvp.Key);
 			}
             
-            //Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
+        //    Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
-        //Debug.Log("______________________________________________________");
+       // Debug.Log("______________________________________________________");
+
+
+
 
 		if (overtonesFreqAndAmp.Count == 0) {
-			overtonesFreqAndAmp.Add (new KeyValuePair<float, float> (1, 0));
+			overtonesFreqAndAmp.Add (1, 0);
 		}
 
         savedLocalMaximums.Clear();
-        return overtonesFreqAndAmp;
+		return overtonesFreqAndAmp.ToList();
     }
 
  
