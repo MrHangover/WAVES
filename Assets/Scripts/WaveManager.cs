@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class WaveManager : MonoBehaviour {
 
@@ -28,8 +29,10 @@ public class WaveManager : MonoBehaviour {
     public float singleFrequency = 0f;
     public GameObject[] pillar;
 
+
     //Privates
     List<WaveObject> pillars;
+	List<Vector2> previousPillarPositions;
 
 	// Use this for initialization
 	void Awake () {
@@ -81,20 +84,22 @@ public class WaveManager : MonoBehaviour {
                     if(frequencyAndAmp.Count > 0)
                     {
                         freq = frequencyAndAmp[0].Key / 25f - 15f;
-                        amp = frequencyAndAmp[0].Value * 2f;
+						amp = Mathf.Clamp (frequencyAndAmp [0].Value * 2f, 0, 5);
                     }
                     //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
                     if (scrollSpeed >= 0f)
                     {
-
-                        pillars[i].body.position = new Vector2(pillarPos.x + PILLAR_WIDTH * i,
-                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
+						
+						pillars[i].body.position = Vector2.Lerp(previousPillarPositions[i],
+																new Vector2(pillarPos.x + PILLAR_WIDTH * i,pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq)),
+																Time.deltaTime*2f);
                     }
                     else
                     {
 
-                        pillars[i].body.position = new Vector2(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
-                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
+						pillars[i].body.position = Vector2.Lerp(previousPillarPositions[i],
+																new Vector2(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i), pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq)),
+																Time.deltaTime*2f);
                     }
                 }
 
@@ -117,12 +122,17 @@ public class WaveManager : MonoBehaviour {
                     }
                 }
 
+				for (int j = 0; j < pillars.Count; j++) {
+					previousPillarPositions [j] = pillars [j].body.position;
+				}
+
                 //Add new pillars at the start or end if some pillars reached the edge.
                 if (scrollSpeed >= 0f && pillars[i].body.position.x < PILLAR_START_POS)
                 {
                     Destroy(pillars[i].gameObject);
                     GameObject newPillar = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Add(newPillar.GetComponent<WaveObject>());
+					previousPillarPositions.Add (newPillar.GetComponent<WaveObject> ().body.position);
                     //Don't remove the reference here, as it will create an infinite loop!
                 }
                 else if (scrollSpeed < 0f && pillars[i].body.position.x > PILLAR_END_POS)
@@ -131,6 +141,7 @@ public class WaveManager : MonoBehaviour {
                     Destroy(pillars[i].gameObject);
                     GameObject newPillar = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Insert(0, newPillar.GetComponent<WaveObject>());
+					previousPillarPositions.Insert (0,newPillar.GetComponent<WaveObject> ().body.position);
                     i++; //skip the (now null) game object as we just checked it
                 }
             }
@@ -162,6 +173,7 @@ public class WaveManager : MonoBehaviour {
             if(pillars[i] == null)
             {
                 pillars.RemoveAt(i);
+				previousPillarPositions.RemoveAt (i);
                 i--;
             }
         }
@@ -172,6 +184,7 @@ public class WaveManager : MonoBehaviour {
         float width = PILLAR_END_POS - PILLAR_START_POS;
         int numOfPillars = (int)(width / PILLAR_WIDTH);
         pillars = new List<WaveObject>();
+		previousPillarPositions = new List<Vector2> ();
 
         int count = 0;
         for (float x = PILLAR_START_POS; x < PILLAR_END_POS; x += PILLAR_WIDTH)
@@ -179,6 +192,7 @@ public class WaveManager : MonoBehaviour {
             GameObject pInstance = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(x, pillarYPosition, pillarLayer), Quaternion.identity);
             pInstance.name = pillars.Count.ToString();
             pillars.Add(pInstance.GetComponent<WaveObject>());
+			previousPillarPositions.Add (pInstance.GetComponent<WaveObject> ().body.position);
             count++;
         }
     }
