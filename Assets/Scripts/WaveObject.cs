@@ -22,7 +22,10 @@ public class WaveObject : MonoBehaviour {
 
     void FixedUpdate()
     {
-        body.velocity = (transform.position - previousPos) * 5f;
+        if (body != null)
+        {
+            body.velocity = (transform.position - previousPos) * 5f;
+        }
         previousPos = transform.position;
     }
 }
