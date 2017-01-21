@@ -222,9 +222,9 @@ public class FrequencyAnalysis : MonoBehaviour {
             overtonesFreqAndAmp.Add(kvp.Value * indexScaler, kvp.Key);
             savedLocalMaximums.Remove(kvp.Key);
             
-            Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
+            //Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
-        Debug.Log("______________________________________________________");
+        //Debug.Log("______________________________________________________");
 
 
         savedLocalMaximums.Clear();
