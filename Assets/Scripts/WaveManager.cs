@@ -5,9 +5,10 @@ using UnityEngine;
 public class WaveManager : MonoBehaviour {
 
     //Constants
-    const float PILLAR_WIDTH = 0.2f;
+    const float PILLAR_WIDTH = 0.5f;
     const float PILLAR_START_POS = -10f;
     const float PILLAR_END_POS = 10f;
+    const float CURVE_WIDTH = 1.5f;
 
     //Public statics
     public static WaveManager instance = null;
@@ -19,11 +20,13 @@ public class WaveManager : MonoBehaviour {
     public int pillarLayer = 0;
     [Range(-20f, 20f)]
     public float scrollSpeed = 5f;
+    public bool useGaussian = true;
 
     //Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. So it's important to scale each individual frequency's sine wave by its specific amplitude.
 	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();
     public float amplitude = 1f;
-    public GameObject pillar;
+    public float singleFrequency = 0f;
+    public GameObject[] pillar;
 
     //Privates
     List<WaveObject> pillars;
@@ -51,6 +54,7 @@ public class WaveManager : MonoBehaviour {
 
         CleanPillarList();
 
+        //Move the start or end pillar based on scrollspeed
         Vector2 pillarPos = pillars[0].body.position;
         if (scrollSpeed >= 0f)
         {
@@ -69,25 +73,55 @@ public class WaveManager : MonoBehaviour {
         {
             if (pillars[i] != null)
             {
-				float sins = 0;
-				foreach(KeyValuePair<float,float> faa in frequencyAndAmp){
-					float freq = (faa.Key / 684.8f) * 4f;
-					sins += (Mathf.Sin(pillars[i].body.position.x * freq * faa.Value * FrequencyAnalysis.instance.micVolumeScale + FrequencyAnalysis.instance.noiseLevel));
-				}
-
-                if (scrollSpeed >= 0f)
+				
+                if (useGaussian)
                 {
-                    pillars[i].body.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i, pillars[i].startYPos +  sins * amplitude);
+                    float freq = 0f;
+                    float amp = 0f;
+                    if(frequencyAndAmp.Count > 0)
+                    {
+                        freq = frequencyAndAmp[0].Key / 25f - 15f;
+                        amp = frequencyAndAmp[0].Value * 2f;
+                    }
+                    //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
+                    if (scrollSpeed >= 0f)
+                    {
+
+                        pillars[i].body.position = new Vector2(pillarPos.x + PILLAR_WIDTH * i,
+                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
+                    }
+                    else
+                    {
+
+                        pillars[i].body.position = new Vector2(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
+                                                               pillars[i].startYPos + Gaussian(pillars[i].body.position.x, amp, freq));
+                    }
                 }
+
                 else
                 {
-                    pillars[i].body.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i), pillars[i].startYPos + sins * amplitude);
+					float sins = 0;
+					foreach(KeyValuePair<float,float> faa in frequencyAndAmp){
+						float freq = (faa.Key / 684.8f) * 4f;
+						sins += (Mathf.Sin(pillars[i].body.position.x * freq * faa.Value * FrequencyAnalysis.instance.micVolumeScale + FrequencyAnalysis.instance.noiseLevel));
+					}
+
+
+                    if (scrollSpeed >= 0f)
+                    {
+                        pillars[i].body.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i, pillars[i].startYPos + sins * amplitude);
+                    }
+                    else
+                    {
+                        pillars[i].body.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i), pillars[i].startYPos + sins * amplitude);
+                    }
                 }
 
+                //Add new pillars at the start or end if some pillars reached the edge.
                 if (scrollSpeed >= 0f && pillars[i].body.position.x < PILLAR_START_POS)
                 {
                     Destroy(pillars[i].gameObject);
-                    GameObject newPillar = Instantiate(pillar, new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
+                    GameObject newPillar = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Add(newPillar.GetComponent<WaveObject>());
                     //Don't remove the reference here, as it will create an infinite loop!
                 }
@@ -95,7 +129,7 @@ public class WaveManager : MonoBehaviour {
                 {
                     float difference = pillars[i].body.position.x - PILLAR_END_POS;
                     Destroy(pillars[i].gameObject);
-                    GameObject newPillar = Instantiate(pillar, new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
+                    GameObject newPillar = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Insert(0, newPillar.GetComponent<WaveObject>());
                     i++; //skip the (now null) game object as we just checked it
                 }
@@ -112,6 +146,14 @@ public class WaveManager : MonoBehaviour {
 
     //    waves[layer - 1].Add(wave);
     //}
+
+    //Hopefully this is a gaussian function
+    float Gaussian(float xPos, float amplitude, float frequency)
+    {
+        float val = amplitude * Mathf.Exp(-(Mathf.Pow(xPos - frequency, 2f) / (2 * Mathf.Pow(CURVE_WIDTH, 2))));
+        //Debug.Log(val);
+        return val;
+    }
 
     void CleanPillarList()
     {
@@ -134,7 +176,7 @@ public class WaveManager : MonoBehaviour {
         int count = 0;
         for (float x = PILLAR_START_POS; x < PILLAR_END_POS; x += PILLAR_WIDTH)
         {
-            GameObject pInstance = Instantiate(pillar, new Vector3(x, pillarYPosition, pillarLayer), Quaternion.identity);
+            GameObject pInstance = Instantiate(pillar[Random.Range(0, pillar.Length)], new Vector3(x, pillarYPosition, pillarLayer), Quaternion.identity);
             pInstance.name = pillars.Count.ToString();
             pillars.Add(pInstance.GetComponent<WaveObject>());
             count++;

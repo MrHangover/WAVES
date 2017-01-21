@@ -7,6 +7,7 @@ public class WaveObject : MonoBehaviour {
     [Range(1, 1000)]
     public int waveLayer = 1;
     public float startYPos;
+
     public Rigidbody2D body;
 
     Vector3 previousPos;
