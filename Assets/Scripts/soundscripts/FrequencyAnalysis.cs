@@ -47,6 +47,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	int microphoneNr = 0;
 
+	[SerializeField] float freqAmpThreshold = 0.5f;
 
 	//Public Variables
 	public float outputVolume;
@@ -145,17 +146,18 @@ public class FrequencyAnalysis : MonoBehaviour {
                 */
                 //specLeft is the amplitude registered for the current frequency range
                 registerLocalMaximums(specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
+
             }
         }
 
-
+		frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         if (WaveManager.instance != null)
         { 
-			WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+			WaveManager.instance.frequencyAndAmp = frequencyAndAmp;
         }
         else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
         {
-			frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+			//frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         }
 
 
@@ -179,8 +181,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 		outputVolume = Mathf.Lerp(prevVolume, ((volumenumber * volumeScale)*micVolumeScale) + noiseLevel,Time.deltaTime*lerpSpeed);
 
 
-		if (outputVolume > 4f) {
-			outputVolume = 4f;
+		if (outputVolume > 1f) {
+			outputVolume = 1f;
 		}
 
 		if (WaveManager.instance != null) {
@@ -206,7 +208,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 			}
 		}
 			
-		print (frequencyAndAmp);
+		print (frequencyAndAmp[0].Key+" "+frequencyAndAmp[0].Value);
 
 	}
 
@@ -260,13 +262,19 @@ public class FrequencyAnalysis : MonoBehaviour {
                 break;
             }
             KeyValuePair<float,int> kvp = savedLocalMaximums.Last();
-			overtonesFreqAndAmp.Add(new KeyValuePair<float, float>(kvp.Value * indexScaler, kvp.Key));
-            savedLocalMaximums.Remove(kvp.Key);
+
+			if (kvp.Value > freqAmpThreshold) {
+				overtonesFreqAndAmp.Add (new KeyValuePair<float, float> (kvp.Value * indexScaler, kvp.Key));
+				savedLocalMaximums.Remove (kvp.Key);
+			}
             
         //    Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
         }
        // Debug.Log("______________________________________________________");
 
+		if (overtonesFreqAndAmp.Count == 0) {
+			overtonesFreqAndAmp.Add (new KeyValuePair<float, float> (1, 0));
+		}
 
         savedLocalMaximums.Clear();
         return overtonesFreqAndAmp;
