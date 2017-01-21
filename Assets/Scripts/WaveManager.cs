@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class WaveManager : MonoBehaviour {
 
@@ -30,12 +31,15 @@ public class WaveManager : MonoBehaviour {
     public GameObject colliderPillar;
     public GameObject[] visualPillar;
 
+
     //Privates
     List<WaveObject> colliderPillars;
     List<WaveObject> visualPillars;
+	List<Vector2> previousColliderPillarPositions;
+    List<Vector3> previousVisualPillarPositions;
 
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake () {
 		if(instance == null)
         {
             instance = this;
@@ -80,7 +84,7 @@ public class WaveManager : MonoBehaviour {
             freq = frequencyAndAmp[0].Key / 25f - 15f;
             amp = frequencyAndAmp[0].Value * 2f;
         }
-        Debug.Log("Freq: " + freq);
+        //Debug.Log("Freq: " + freq);
 
         //Moving the physical pillars
         #region physicalPillars
@@ -91,19 +95,19 @@ public class WaveManager : MonoBehaviour {
 				
                 if (useGaussian)
                 {
-
                     //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
                     if (scrollSpeed >= 0f)
                     {
 
-                        colliderPillars[i].body.position = new Vector2(colliderPillars[i].body.position.x,
-                                                               colliderPillars[i].startYPos + Gaussian(colliderPillars[i].body.position.x, amp, freq));
+                        colliderPillars[i].body.position = Vector2.Lerp(previousColliderPillarPositions[i],
+																new Vector2(colliderPillars[i].body.position.x, colliderPillars[i].startYPos + Gaussian(colliderPillars[i].body.position.x, amp, freq)),
+																Time.fixedDeltaTime*2f);
                     }
                     else
                     {
-
-                        colliderPillars[i].body.position = new Vector2(colliderPillars[i].body.position.x,
-                                                               colliderPillars[i].startYPos + Gaussian(colliderPillars[i].body.position.x, amp, freq));
+                        colliderPillars[i].body.position = Vector2.Lerp(previousColliderPillarPositions[i],
+																new Vector2(colliderPillars[i].body.position.x, colliderPillars[i].startYPos + Gaussian(colliderPillars[i].body.position.x, amp, freq)),
+																Time.fixedDeltaTime*2f);
                     }
                 }
 
@@ -126,12 +130,17 @@ public class WaveManager : MonoBehaviour {
                     }
                 }
 
+				for (int j = 0; j < colliderPillars.Count; j++) {
+                    previousColliderPillarPositions[j] = colliderPillars[j].body.position;
+				}
+
                 //Add new pillars at the start or end if some pillars reached the edge.
                 if (scrollSpeed >= 0f && colliderPillars[i].body.position.x < PILLAR_START_POS)
                 {
                     Destroy(colliderPillars[i].gameObject);
                     GameObject newPillar = Instantiate(colliderPillar, new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
                     colliderPillars.Add(newPillar.GetComponent<WaveObject>());
+                    previousColliderPillarPositions.Add (newPillar.GetComponent<WaveObject> ().body.position);
                     //Don't remove the reference here, as it will create an infinite loop!
                 }
                 else if (scrollSpeed < 0f && colliderPillars[i].body.position.x > PILLAR_END_POS)
@@ -140,6 +149,7 @@ public class WaveManager : MonoBehaviour {
                     Destroy(colliderPillars[i].gameObject);
                     GameObject newPillar = Instantiate(colliderPillar, new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
                     colliderPillars.Insert(0, newPillar.GetComponent<WaveObject>());
+                    previousColliderPillarPositions.Insert (0,newPillar.GetComponent<WaveObject> ().body.position);
                     i++; //skip the (now null) game object as we just checked it
                 }
             }
@@ -159,17 +169,59 @@ public class WaveManager : MonoBehaviour {
                     //Move all pillars based on a single pillar at the start or end, and the frequency and amplitude.
                     if (scrollSpeed >= 0f)
                     {
+                        float visualToColliderPoint = (visualPillars[i].transform.position.x + 10f) / 20f;
+                        visualToColliderPoint *= colliderPillars.Count;
+                        if (visualToColliderPoint <= 0f || visualToColliderPoint >= colliderPillars.Count - 1)
+                        {
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i,
+                                                                  visualPillars[i].startYPos,
+                                                                  pillarLayer);
+                        }
+                        else if (visualToColliderPoint % 1f == 0f)
+                        {
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i,
+                                                                  colliderPillars[(int)visualToColliderPoint].body.position.y,
+                                                                  pillarLayer);
+                        }
+                        else
+                        {
+                            int first = Mathf.FloorToInt(visualToColliderPoint);
+                            float firstHeight = colliderPillars[first].body.position.y;
+                            float secondHeight = colliderPillars[first + 1].body.position.y;
+                            float interpHeight = firstHeight - (firstHeight - secondHeight) * (first - visualToColliderPoint);
 
-                        visualPillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i,
-                                                               visualPillars[i].startYPos + Gaussian(visualPillars[i].transform.position.x, amp, freq),
-                                                               pillarLayer);
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i,
+                                                                  interpHeight,
+                                                                  pillarLayer);
+                        }
                     }
                     else
                     {
+                        float visualToColliderPoint = (visualPillars[i].transform.position.x + 10f) / 20f;
+                        visualToColliderPoint *= colliderPillars.Count;
+                        if (visualToColliderPoint <= 0f || visualToColliderPoint >= colliderPillars.Count - 1)
+                        {
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i),
+                                                                  visualPillars[i].startYPos,
+                                                                  pillarLayer);
+                        }
+                        else if (visualToColliderPoint % 1f == 0f)
+                        {
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i),
+                                                                  colliderPillars[(int)visualToColliderPoint].body.position.y,
+                                                                  pillarLayer);
+                        }
+                        else
+                        {
+                            int first = Mathf.FloorToInt(visualToColliderPoint);
+                            float firstHeight = colliderPillars[first].body.position.y;
+                            float secondHeight = colliderPillars[first + 1].body.position.y;
+                            float interpHeight = firstHeight - (firstHeight - secondHeight) * (first - visualToColliderPoint);
 
-                        visualPillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i),
-                                                               visualPillars[i].startYPos + Gaussian(visualPillars[i].transform.position.x, amp, freq),
-                                                               pillarLayer);
+                            visualPillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i),
+                                                                  interpHeight,
+                                                                  pillarLayer);
+                        }
                     }
                 }
 
@@ -179,18 +231,23 @@ public class WaveManager : MonoBehaviour {
                     foreach (KeyValuePair<float, float> faa in frequencyAndAmp)
                     {
                         float freq2 = (faa.Key / 684.8f) * 4f;
-                        sins += (Mathf.Sin(visualPillars[i].body.position.x * freq2 * faa.Value * FrequencyAnalysis.instance.micVolumeScale + FrequencyAnalysis.instance.noiseLevel));
+                        sins += (Mathf.Sin(visualPillars[i].transform.position.x * freq2 * faa.Value * FrequencyAnalysis.instance.micVolumeScale + FrequencyAnalysis.instance.noiseLevel));
                     }
 
 
                     if (scrollSpeed >= 0f)
                     {
-                        visualPillars[i].body.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i, visualPillars[i].startYPos + sins * amplitude);
+                        visualPillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_VISUAL_WIDTH * i, visualPillars[i].startYPos + sins * amplitude);
                     }
                     else
                     {
-                        visualPillars[i].body.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i), visualPillars[i].startYPos + sins * amplitude);
+                        visualPillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_VISUAL_WIDTH * ((visualPillars.Count - 1) - i), visualPillars[i].startYPos + sins * amplitude);
                     }
+                }
+
+                for (int j = 0; j < visualPillars.Count; j++)
+                {
+                    previousVisualPillarPositions[j] = visualPillars[j].transform.position;
                 }
 
                 //Add new pillars at the start or end if some pillars reached the edge.
@@ -199,6 +256,7 @@ public class WaveManager : MonoBehaviour {
                     Destroy(visualPillars[i].gameObject);
                     GameObject newPillar = Instantiate(visualPillar[Random.Range(0, visualPillar.Length)], new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
                     visualPillars.Add(newPillar.GetComponent<WaveObject>());
+                    previousVisualPillarPositions.Add(newPillar.transform.position);
                     //Don't remove the reference here, as it will create an infinite loop!
                 }
                 else if (scrollSpeed < 0f && visualPillars[i].transform.position.x > PILLAR_END_POS)
@@ -207,22 +265,13 @@ public class WaveManager : MonoBehaviour {
                     Destroy(visualPillars[i].gameObject);
                     GameObject newPillar = Instantiate(visualPillar[Random.Range(0, visualPillar.Length)], new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
                     visualPillars.Insert(0, newPillar.GetComponent<WaveObject>());
+                    previousVisualPillarPositions.Insert(0, newPillar.transform.position);
                     i++; //skip the (now null) game object as we just checked it
                 }
             }
         }
         #endregion
     }
-
-    //public void AddWaveObject(int layer, GameObject wave)
-    //{
-    //    while(waves.Count < layer)
-    //    {
-    //        waves.Add(new List<GameObject>());
-    //    }
-
-    //    waves[layer - 1].Add(wave);
-    //}
 
     //Hopefully this is a gaussian function
     float Gaussian(float xPos, float amplitude, float frequency)
@@ -239,6 +288,7 @@ public class WaveManager : MonoBehaviour {
             if(visualPillars[i] == null)
             {
                 visualPillars.RemoveAt(i);
+				previousVisualPillarPositions.RemoveAt (i);
                 i--;
             }
         }
@@ -249,12 +299,14 @@ public class WaveManager : MonoBehaviour {
         float width = PILLAR_END_POS - PILLAR_START_POS;
         int numOfPillars = (int)(width / PILLAR_COLLIDER_WIDTH);
         colliderPillars = new List<WaveObject>();
+        previousColliderPillarPositions = new List<Vector2>();
 
         int count = 0;
         for (float x = PILLAR_START_POS; x < PILLAR_END_POS; x += PILLAR_COLLIDER_WIDTH)
         {
             GameObject pInstance = Instantiate(colliderPillar, new Vector3(x, pillarYPosition, pillarLayer), Quaternion.identity);
             colliderPillars.Add(pInstance.GetComponent<WaveObject>());
+            previousColliderPillarPositions.Add(pInstance.GetComponent<WaveObject>().body.position);
             count++;
         }
     }
@@ -264,12 +316,14 @@ public class WaveManager : MonoBehaviour {
         float width = PILLAR_END_POS - PILLAR_START_POS;
         int numOfPillars = (int)(width / PILLAR_VISUAL_WIDTH);
         visualPillars = new List<WaveObject>();
+        previousVisualPillarPositions = new List<Vector3> ();
 
         int count = 0;
         for (float x = PILLAR_START_POS; x < PILLAR_END_POS; x += PILLAR_VISUAL_WIDTH)
         {
             GameObject pInstance = Instantiate(visualPillar[Random.Range(0, visualPillar.Length)], new Vector3(x, pillarYPosition, pillarLayer), Quaternion.identity);
             visualPillars.Add(pInstance.GetComponent<WaveObject>());
+            previousVisualPillarPositions.Add (pInstance.transform.position);
             count++;
         }
     }
