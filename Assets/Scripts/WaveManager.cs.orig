@@ -74,6 +74,10 @@ public class WaveManager : MonoBehaviour {
         else
         {
             //Debug.Log("Scrolling right!");
+<<<<<<< HEAD
+            pillars[pillars.Count - 1].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+            pillarPos = pillars[pillars.Count - 1].body.position;
+=======
             visualPillars[visualPillars.Count - 1].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = visualPillars[visualPillars.Count - 1].transform.position;
         }
@@ -84,6 +88,7 @@ public class WaveManager : MonoBehaviour {
         {
 			freq = (frequencyAndAmp[0].Key / 684.8f) * 25 - 15f;
 			amp = Mathf.Clamp (frequencyAndAmp [0].Value * amplitudeModifier, 0, 10f);
+>>>>>>> 2d4a3c66f804f5b9711e9402a308d78c2d528d0f
         }
         //Debug.Log("Freq: " + freq);
 

@@ -13,7 +13,8 @@ public class GameManager : MonoBehaviour {
     {
         Loader,
         MainMenu,
-        TestLvl
+        TestLvl,
+		TheLevel
     }
 
     void Awake()
