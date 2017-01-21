@@ -59,13 +59,13 @@ public class WaveManager : MonoBehaviour {
         if (scrollSpeed >= 0f)
         {
             Debug.Log("Scrolling left!");
-            pillars[0].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+            //pillars[0].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = pillars[0].body.position;
         }
         else
         {
             Debug.Log("Scrolling right!");
-            pillars[pillars.Count - 1].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+            //pillars[pillars.Count - 1].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = pillars[pillars.Count - 1].body.position;
         }
 
