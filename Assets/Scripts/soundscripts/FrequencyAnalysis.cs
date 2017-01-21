@@ -51,7 +51,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 	//Public Variables
 	public float outputVolume;
 	public float micVolumeScale = 1;
-	public  Dictionary<float, float> frequencyAndAmp = new Dictionary<float, float>();
+	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();//why do we need this public variable if we're already sending it to WaveManager.instance.frequencyAndAmp?
 
 
 	void Awake () {
@@ -148,14 +148,14 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
-		//frequencyAndAmp = 
+
         if (WaveManager.instance != null)
         { 
-				WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);;
+			WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         }
         else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
         {
-            chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+			frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         }
 
 
@@ -205,10 +205,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 				ResetMicrophone (2);
 			}
 		}
-
-		//if () {
-			print (outputVolume);
-		//}
+			
+		print (frequencyAndAmp);
 
 	}
 
@@ -240,21 +238,16 @@ public class FrequencyAnalysis : MonoBehaviour {
     }
 
     /// <summary>
-    /// Returns a dictionary (list of key value pairs) of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
+    /// Returns a list of key value pairs of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
     /// Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. Or maybe they are all very silent.
-    /// Iterate through a dictionary like this:
-    ///     foreach(KeyValuePair<string, string> entry in myDic)
-    ///     {
-    ///         do something with entry.Value or entry.Key
-    ///     }
     /// </summary>
     /// <param name="numOvertoneSamples"></param>
     /// <param name="savedLocalMaximums"></param>
     /// <param name="indexScaler"></param>
     /// <returns></returns>
-    Dictionary<float, float> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
+	List<KeyValuePair<float, float>> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
     {
-        Dictionary<float, float> overtonesFreqAndAmp = new Dictionary<float, float>();
+		List<KeyValuePair<float, float>> overtonesFreqAndAmp = new List<KeyValuePair<float, float>>();
         currentLocalMaximum = new KeyValuePair<float, int>(-1, -1);
 
         //sort samples by size;
@@ -267,7 +260,7 @@ public class FrequencyAnalysis : MonoBehaviour {
                 break;
             }
             KeyValuePair<float,int> kvp = savedLocalMaximums.Last();
-            overtonesFreqAndAmp.Add(kvp.Value * indexScaler, kvp.Key);
+			overtonesFreqAndAmp.Add(new KeyValuePair<float, float>(kvp.Value * indexScaler, kvp.Key));
             savedLocalMaximums.Remove(kvp.Key);
             
         //    Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);

@@ -21,7 +21,7 @@ public class WaveManager : MonoBehaviour {
     public float scrollSpeed = 5f;
 
     //Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. So it's important to scale each individual frequency's sine wave by its specific amplitude.
-    public Dictionary<float, float> frequencyAndAmp = new Dictionary<float, float>();
+	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();
     public float amplitude = 1f;
     public GameObject pillar;
 
@@ -69,19 +69,18 @@ public class WaveManager : MonoBehaviour {
         {
             if (pillars[i] != null)
             {
+				float sins = 0;
+				foreach(KeyValuePair<float,float> faa in frequencyAndAmp){
+					sins += (Mathf.Sin(pillars[i].body.position.x * faa.Key * faa.Value));
+				}
+
                 if (scrollSpeed >= 0f)
                 {
-                    pillars[i].body.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i,
-                                                                pillars[i].startYPos +  Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[0]) + 
-																						Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[1]) +
-																						Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[2]) * amplitude);
+                    pillars[i].body.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i, pillars[i].startYPos +  sins * amplitude);
                 }
                 else
                 {
-                    pillars[i].body.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
-																						pillars[i].startYPos + Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[0]) + 
-																						Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[1]) +
-																						Mathf.Sin(pillars[i].body.position.x * frequencyAndAmp[2]) * amplitude);
+                    pillars[i].body.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i), pillars[i].startYPos + sins * amplitude);
                 }
 
                 if (scrollSpeed >= 0f && pillars[i].body.position.x < PILLAR_START_POS)
