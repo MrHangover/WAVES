@@ -208,7 +208,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 			}
 		}
 			
-		print (frequencyAndAmp[0].Key+" "+frequencyAndAmp[0].Value);
+		//print (frequencyAndAmp[0].Key+" "+frequencyAndAmp[0].Value);
 
 	}
 
