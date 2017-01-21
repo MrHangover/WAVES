@@ -16,10 +16,6 @@ public class WaveObject : MonoBehaviour {
         //WaveManager.instance.AddWaveObject(waveLayer, gameObject);
         startYPos = transform.position.y;
         previousPos = transform.position;
-    }
-
-    void Start()
-    {
         body = GetComponent<Rigidbody2D>();
     }
 

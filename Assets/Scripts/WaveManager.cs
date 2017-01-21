@@ -45,22 +45,22 @@ public class WaveManager : MonoBehaviour {
     }
 
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
         CleanPillarList();
 
-        Vector3 pillarPos = pillars[0].transform.position;
+        Vector2 pillarPos = pillars[0].body.position;
         if (scrollSpeed >= 0f)
         {
             Debug.Log("Scrolling left!");
-            pillars[0].transform.position -= Vector3.right * scrollSpeed * Time.deltaTime;
-            pillarPos = pillars[0].transform.position;
+            pillars[0].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+            pillarPos = pillars[0].body.position;
         }
         else
         {
             Debug.Log("Scrolling right!");
-            pillars[pillars.Count - 1].transform.position -= Vector3.right * scrollSpeed * Time.deltaTime;
-            pillarPos = pillars[pillars.Count - 1].transform.position;
+            pillars[pillars.Count - 1].body.position -= Vector2.right * scrollSpeed * Time.fixedDeltaTime;
+            pillarPos = pillars[pillars.Count - 1].body.position;
         }
 
         for (int i = 0; i < pillars.Count; i++)
@@ -69,31 +69,29 @@ public class WaveManager : MonoBehaviour {
             {
                 if (scrollSpeed >= 0f)
                 {
-                    pillars[i].transform.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i,
-                                                                pillars[i].startYPos +  Mathf.Sin(pillars[i].transform.position.x * frequency[0]) + 
-																						Mathf.Sin(pillars[i].transform.position.x * frequency[1]) +
-																						Mathf.Sin(pillars[i].transform.position.x * frequency[2]) * amplitude,
-                                                                pillarLayer);
+                    pillars[i].body.position = new Vector3(pillarPos.x + PILLAR_WIDTH * i,
+                                                                pillars[i].startYPos +  Mathf.Sin(pillars[i].body.position.x * frequency[0]) + 
+																						Mathf.Sin(pillars[i].body.position.x * frequency[1]) +
+																						Mathf.Sin(pillars[i].body.position.x * frequency[2]) * amplitude);
                 }
                 else
                 {
-                    pillars[i].transform.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
-																						pillars[i].startYPos + Mathf.Sin(pillars[i].transform.position.x * frequency[0]) + 
-																						Mathf.Sin(pillars[i].transform.position.x * frequency[1]) +
-																						Mathf.Sin(pillars[i].transform.position.x * frequency[2]) * amplitude,
-                                                                pillarLayer);
+                    pillars[i].body.position = new Vector3(pillarPos.x - PILLAR_WIDTH * ((pillars.Count - 1) - i),
+																						pillars[i].startYPos + Mathf.Sin(pillars[i].body.position.x * frequency[0]) + 
+																						Mathf.Sin(pillars[i].body.position.x * frequency[1]) +
+																						Mathf.Sin(pillars[i].body.position.x * frequency[2]) * amplitude);
                 }
 
-                if (scrollSpeed >= 0f && pillars[i].transform.position.x < PILLAR_START_POS)
+                if (scrollSpeed >= 0f && pillars[i].body.position.x < PILLAR_START_POS)
                 {
                     Destroy(pillars[i].gameObject);
                     GameObject newPillar = Instantiate(pillar, new Vector3(PILLAR_END_POS, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Add(newPillar.GetComponent<WaveObject>());
                     //Don't remove the reference here, as it will create an infinite loop!
                 }
-                else if (scrollSpeed < 0f && pillars[i].transform.position.x > PILLAR_END_POS)
+                else if (scrollSpeed < 0f && pillars[i].body.position.x > PILLAR_END_POS)
                 {
-                    float difference = pillars[i].transform.position.x - PILLAR_END_POS;
+                    float difference = pillars[i].body.position.x - PILLAR_END_POS;
                     Destroy(pillars[i].gameObject);
                     GameObject newPillar = Instantiate(pillar, new Vector3(PILLAR_START_POS + difference, pillarYPosition, pillarLayer), Quaternion.identity);
                     pillars.Insert(0, newPillar.GetComponent<WaveObject>());
