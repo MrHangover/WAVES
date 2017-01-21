@@ -82,10 +82,15 @@ public class WaveManager : MonoBehaviour {
         float amp = 0f;
         if (frequencyAndAmp.Count > 0)
         {
-			freq = (frequencyAndAmp[0].Key / 684.8f) * 25 - 15f;
-			amp = Mathf.Clamp (frequencyAndAmp [0].Value * amplitudeModifier, 0, 10f);
+			if (FrequencyAnalysis.instance != null) {
+				//freq = MapToCalibration((FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key)));
+				freq = TotalMap(frequencyAndAmp[0].Key);
+				amp = Mathf.Clamp (frequencyAndAmp [0].Value * amplitudeModifier, 0, 10f);
+			}
+
         }
-        //Debug.Log("Freq: " + freq);
+		float hejmartin = FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key);
+		Debug.Log("FREQ: " +frequencyAndAmp[0].Key +"   "+ hejmartin + "    "+ freq+"   AMP: "+amp);
 
         //Moving the physical pillars
         #region physicalPillars
@@ -334,4 +339,16 @@ public class WaveManager : MonoBehaviour {
         SpawnColliderPillars();
         SpawnVisualPillars();
     }
+
+
+	public float MapToCalibration(float freqtoMap){
+		float mapmax = 10; float mapmin = -15;
+		return (((freqtoMap - mapmin) * (mapmax - mapmin)) / (FrequencyAnalysis.instance.calibrationFreqMax - FrequencyAnalysis.instance.calibrationFreqMin)) + mapmin;
+	}
+
+	public float TotalMap(float freqtoMap){
+		float mapmax = 15; float mapmin = -15;
+		return (((freqtoMap - mapmin) * (mapmax - mapmin)) / (684.8f - 0)) + mapmin;
+	}
+
 }
