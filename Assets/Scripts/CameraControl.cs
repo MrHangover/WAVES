@@ -7,7 +7,7 @@ public class CameraControl : MonoBehaviour {
     [SerializeField]
     float cameraShakeAmplitude = 1f;
     [SerializeField]
-    Vector2 clampMinMaxVolume = new Vector2(1f,5);
+    Vector2 clampMinMaxVolume = new Vector2(1f,4f);
     [SerializeField]
     AnimationCurve amplitudeContribution;
 
