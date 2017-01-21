@@ -24,7 +24,7 @@ public class LightningScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-
+        Minotaur = GameObject.FindGameObjectWithTag("Minotaur");
     }
 	
 	// Update is called once per frame
