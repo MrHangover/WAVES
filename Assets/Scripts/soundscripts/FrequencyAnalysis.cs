@@ -6,6 +6,9 @@ using System.Linq;
 
 public class FrequencyAnalysis : MonoBehaviour {
 
+	//Public statics
+	public static FrequencyAnalysis instance = null;
+
 	string micstring = "Built-in Microphone";
 
 	public AudioSource aso;
@@ -25,13 +28,12 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	public float pitch;
 	float threshold = 0.02f;
-	
-	[Range(0,100)]
-	public float volumeScale = 10;
+
+	[SerializeField] float volumeScale = 5;
 	float volumeRef = 0.1f;
 	float specScale = 20f;
 	float prevVolume;
-	float outputVolume;
+
 
 	public float noiseLevel = 0.7f;
 	public float lerpSpeed = 1.5f;
@@ -43,9 +45,30 @@ public class FrequencyAnalysis : MonoBehaviour {
     bool canSaveLM = true;
 
 
+	int microphoneNr = 0;
+
+
+	//Public Variables
+	public float outputVolume;
+	public float micVolumeScale = 1;
+	public List<KeyValuePair<float, float>> frequencyAndAmp = new List<KeyValuePair<float, float>>();//why do we need this public variable if we're already sending it to WaveManager.instance.frequencyAndAmp?
+
+
+	void Awake () {
+		if(instance == null)
+		{
+			instance = this;
+		}
+		else if(instance != this)
+		{
+			Destroy(gameObject);
+		}
+		DontDestroyOnLoad(gameObject);
+	}
 
     void Start() {
-		aso.clip = Microphone.Start (micstring, true, 1, 44100);
+		print (Microphone.devices.Length);
+		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
 		aso.loop = true;
@@ -125,16 +148,19 @@ public class FrequencyAnalysis : MonoBehaviour {
             }
         }
 
+
         if (WaveManager.instance != null)
         { 
-            WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+			WaveManager.instance.frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         }
         else //otherwise it doesn't run in soundtestscene, because that does not have a WaveManager
         {
-            chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
+			frequencyAndAmp = chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
         }
 
 
+
+		/// VOLUME -----------
 
         aso.GetOutputData(volumeSamples, 0);
 
@@ -150,7 +176,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 		volumenumber = (1 / Mathf.Abs (20 * Mathf.Log10 (volumenumber / volumeRef))); //convert to dB
 
 		//transform.localScale = new Vector3 (transform.localScale.x, (volumenumber) * volumeScale, 1); 
-		outputVolume = Mathf.Lerp(prevVolume, volumenumber * volumeScale - noiseLevel,Time.deltaTime*lerpSpeed);
+		outputVolume = Mathf.Lerp(prevVolume, ((volumenumber * volumeScale)*micVolumeScale) + noiseLevel,Time.deltaTime*lerpSpeed);
 
 
 		if (outputVolume > 4f) {
@@ -161,6 +187,26 @@ public class FrequencyAnalysis : MonoBehaviour {
 			WaveManager.instance.amplitude = outputVolume;
 		}
 
+
+
+		if (Input.GetKey (KeyCode.Alpha1)) {
+			if (Microphone.devices.Length > 0) {
+				ResetMicrophone (0);
+			}
+		}
+		if (Input.GetKey (KeyCode.Alpha2)) {
+			if (Microphone.devices.Length > 1) {
+				ResetMicrophone (1);
+			}
+		}
+		if (Input.GetKey (KeyCode.Alpha3)) {
+			if (Microphone.devices.Length > 2) {
+				
+				ResetMicrophone (2);
+			}
+		}
+			
+		print (frequencyAndAmp);
 
 	}
 
@@ -192,21 +238,16 @@ public class FrequencyAnalysis : MonoBehaviour {
     }
 
     /// <summary>
-    /// Returns a dictionary (list of key value pairs) of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
+    /// Returns a list of key value pairs of the n-th strongest oversamples. Key is the frequency in Hertz and Value is the amplitude of that frequency.
     /// Knowing the amplitude of each frequency is important because if you get like 5 samples maybe only the first 2 are very loud. Or maybe they are all very silent.
-    /// Iterate through a dictionary like this:
-    ///     foreach(KeyValuePair<string, string> entry in myDic)
-    ///     {
-    ///         do something with entry.Value or entry.Key
-    ///     }
     /// </summary>
     /// <param name="numOvertoneSamples"></param>
     /// <param name="savedLocalMaximums"></param>
     /// <param name="indexScaler"></param>
     /// <returns></returns>
-    Dictionary<float, float> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
+	List<KeyValuePair<float, float>> chooseTopOvertoneSampleIndices(int numOvertoneSamples, SortedDictionary<float, int> savedLocalMaximums, float indexScaler)
     {
-        Dictionary<float, float> overtonesFreqAndAmp = new Dictionary<float, float>();
+		List<KeyValuePair<float, float>> overtonesFreqAndAmp = new List<KeyValuePair<float, float>>();
         currentLocalMaximum = new KeyValuePair<float, int>(-1, -1);
 
         //sort samples by size;
@@ -219,7 +260,7 @@ public class FrequencyAnalysis : MonoBehaviour {
                 break;
             }
             KeyValuePair<float,int> kvp = savedLocalMaximums.Last();
-            overtonesFreqAndAmp.Add(kvp.Value * indexScaler, kvp.Key);
+			overtonesFreqAndAmp.Add(new KeyValuePair<float, float>(kvp.Value * indexScaler, kvp.Key));
             savedLocalMaximums.Remove(kvp.Key);
             
             //Debug.Log("freq value: "+ kvp.Key+ "; freq index: "+ kvp.Value + "; * indexScaler "+ indexScaler);
@@ -231,6 +272,15 @@ public class FrequencyAnalysis : MonoBehaviour {
         return overtonesFreqAndAmp;
     }
 
-    
+ 
+
+
+
+	public void ResetMicrophone(int nr){
+		microphoneNr = nr;
+		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
+		while (!(Microphone.GetPosition(null) > 0)){}
+		aso.Play ();
+	}
 
 }

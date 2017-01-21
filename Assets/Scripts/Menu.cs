@@ -1,0 +1,73 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
+
+public class Menu : MonoBehaviour {
+
+	public List<Button> mics = new List<Button>();
+
+	float micVolumeScale = 1;
+	float noiseLevel = 0;
+
+	[SerializeField] Text volumeText;
+	[SerializeField] Text noiseText;
+	[SerializeField] GameObject menuPanel;
+
+	// Use this for initialization
+	void Start () {
+		for (int i = 0; i < Microphone.devices.Length; i++) {
+			if (Microphone.devices [i] != null) {
+				mics [i].GetComponentInChildren<Text> ().text = Microphone.devices [i];
+			}
+		}
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			OpenCloseMenu ();
+		}
+		
+	}
+
+	public void OpenCloseMenu(){
+		menuPanel.SetActive (!menuPanel.activeInHierarchy);
+		if (menuPanel.activeInHierarchy) {
+			Time.timeScale = 0;
+		} else {
+			Time.timeScale = 1;
+		}
+	}
+
+
+	public void ChangeMicrophone(Button b){
+		if (Microphone.devices.Length > mics.IndexOf(b)) {
+			if (FrequencyAnalysis.instance != null) {
+				FrequencyAnalysis.instance.ResetMicrophone (Microphone.devices.ToList ().IndexOf (b.GetComponentInChildren<Text> ().text));
+			}
+		}
+	}
+
+	public void OnSliderChange(Slider sl){
+		micVolumeScale = sl.value;
+		if (FrequencyAnalysis.instance != null) {
+			FrequencyAnalysis.instance.micVolumeScale = micVolumeScale;
+		}
+		volumeText.text = micVolumeScale.ToString ();
+
+	}
+
+	public void OnNoiseChange(Slider sl){
+		noiseLevel = sl.value;
+		if (FrequencyAnalysis.instance != null) {
+			FrequencyAnalysis.instance.noiseLevel = noiseLevel;
+		}
+		noiseText.text = noiseLevel.ToString();
+	}
+
+
+
+
+}
