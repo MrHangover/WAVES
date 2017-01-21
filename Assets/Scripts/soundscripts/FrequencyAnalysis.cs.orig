@@ -25,21 +25,30 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	public float pitch;
 	float threshold = 0.02f;
-
-
-<<<<<<< HEAD
-    public int numOvertoneSamples = 3;
-    SortedDictionary<float, int> localMaximums;
-    float currentLocalMaximum;
-=======
+	
 	[Range(0,100)]
 	public float volumeScale = 10;
 	float volumeRef = 0.1f;
 	float specScale = 20f;
+	float prevVolume;
 	float outputVolume;
->>>>>>> 070ebd6332578fa9d299d94a326530ccd3ac135e
+
+<<<<<<< HEAD
+
+	public int numOvertoneSamples = 3;
+    	SortedDictionary<float, int> localMaximums;
+    	float currentLocalMaximum;
+
+	
+
 
     void Start() {
+=======
+	public float noiseLevel = 0.7f;
+	public float lerpSpeed = 1.5f;
+
+	void Start() {
+>>>>>>> 136e081e11d74161f7564bfcc69b764112cd051b
 		aso.clip = Microphone.Start (micstring, true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
 		aso.Play ();
@@ -60,14 +69,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 				thebarsleft [i].transform.localScale = new Vector3 (width, 1, 0.2f);
 			}
 		}
-<<<<<<< HEAD
-
         localMaximums = new SortedDictionary<float, int>();
         currentLocalMaximum = -1;
     }
-=======
-	}
->>>>>>> 070ebd6332578fa9d299d94a326530ccd3ac135e
 
 	// Update is called once per frame
 	void Update () {
@@ -106,25 +110,20 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 				//print (numberleft[i]+" "+numberright[i]);
 
-<<<<<<< HEAD
-				thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
-
+				if (bars) {
+					thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
+				}
                 //specLeft is the amplitude registered for the current frequency range
                 registerLocalMaximums(specLeft, i, ref currentLocalMaximum, localMaximums);
             }
         }
 
-        chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
-=======
-				if (bars) {
-					thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
-				}
-			}
-		}
->>>>>>> 070ebd6332578fa9d299d94a326530ccd3ac135e
+chooseTopOvertoneSampleIndices(numOvertoneSamples, localMaximums, 10.7f);
 
-		aso.GetOutputData (volumeSamples, 0);
+aso.GetOutputData (volumeSamples, 0);
 
+
+		prevVolume = outputVolume;
 
 		volumenumber = 0f;
 		for (int j = 0; j < numSamples; j++) {
@@ -135,7 +134,8 @@ public class FrequencyAnalysis : MonoBehaviour {
 		volumenumber = (1 / Mathf.Abs (20 * Mathf.Log10 (volumenumber / volumeRef))); //convert to dB
 
 		//transform.localScale = new Vector3 (transform.localScale.x, (volumenumber) * volumeScale, 1); 
-		outputVolume = volumenumber * volumeScale;
+		outputVolume = Mathf.Lerp(prevVolume, volumenumber * volumeScale - noiseLevel,Time.deltaTime*lerpSpeed);
+
 
 		if (outputVolume > 4f) {
 			outputVolume = 4f;
@@ -149,6 +149,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 	}
 
 
+<<<<<<< HEAD
 
     void registerLocalMaximums(float input, int position, ref float currentLocalMaximum, SortedDictionary<float,int> savedLocalMaximums)
     {
@@ -193,4 +194,6 @@ public class FrequencyAnalysis : MonoBehaviour {
 
     
 
+=======
+>>>>>>> 136e081e11d74161f7564bfcc69b764112cd051b
 }
