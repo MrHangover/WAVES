@@ -118,8 +118,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 		}
 
 		if (WaveManager.instance != null) {
-			WaveManager.instance.amplitude = outputVolume;
-		}
+			WaveManager.instance.pillarYPosition = outputVolume*5 -0.9F;
+            WaveManager.instance.amplitude = outputVolume * 5 - 0.9F;
+            WaveManager.instance.frequency = outputVolume * 5 - 0.9F;
+        }
+
 
 
 	}
