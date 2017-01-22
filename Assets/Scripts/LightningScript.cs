@@ -13,18 +13,25 @@ public class LightningScript : MonoBehaviour {
     [Range(20f,700f)]
     public float pitchValue = 20;
 
-    public float timer = 5f;
+    public float timerMax = 5f;
+	float timer;
 
     public float minPos = -7;
     public float maxPos = 7;
+	public float xOffset = -10;
 
-
-
+	Vector2 prevPos = Vector2.zero;
+	Quaternion origRot;
+	[SerializeField]
+	Vector3 finalRotationV3 = new Vector3(0,0,0);
+	Quaternion finalRotation;
 
     // Use this for initialization
     void Start () {
 
         Minotaur = GameObject.FindGameObjectWithTag("Minotaur");
+		finalRotation = Quaternion.Euler(finalRotationV3);
+		timer = timerMax;
     }
 	
 	// Update is called once per frame
@@ -37,20 +44,26 @@ public class LightningScript : MonoBehaviour {
         float temp = 5f;
         if (WaveManager.instance != null)
         {
-           pitchValue = FrequencyAnalysis.instance.frequencyAndAmp[0].Key;
+			pitchValue = FrequencyAnalysis.instance.avgFreq;
         }
 
         if (timer > 0)
         {
             timer -= Time.deltaTime;
-            gameObject.transform.position = new Vector2((pitchValue * posDif / pitchDif) * 2 + minPos, transform.position.y);
+
+			gameObject.transform.rotation = Quaternion.Lerp(finalRotation, origRot, timer/timerMax);
+			gameObject.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(0.3f,0.3f,0.3f), timer/timerMax);
+
+			//+xOffset
+			gameObject.transform.localPosition = Vector2.Lerp (prevPos, new Vector2 ((pitchValue * posDif / pitchDif) * 2 + minPos , transform.localPosition.y), Time.deltaTime * 1.5f);
+			prevPos = gameObject.transform.localPosition;
         }
 
         else
         {
             
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down);
-            if (hit.collider.tag == "Minotaur")
+			RaycastHit2D hit = Physics2D.Raycast(transform.localPosition, Vector2.down);
+			if (hit && hit.collider.tag == "Minotaur")
             {
                 Debug.Log("test");
                 Destroy(Minotaur);
@@ -59,4 +72,11 @@ public class LightningScript : MonoBehaviour {
         }
  
     }
+
+	public void SetValues(Vector3 newPrevPos, Quaternion origRot){
+
+		this.prevPos = newPrevPos;
+		this.origRot = origRot;
+	}
+
 }

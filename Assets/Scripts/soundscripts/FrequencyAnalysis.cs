@@ -222,7 +222,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 		}
 		avgFreq /= frequencyAndAmp.Count;
 		//print ("----------------------------");
-		print (avgFreq);
+		//print (avgFreq);
 	}
 
 
