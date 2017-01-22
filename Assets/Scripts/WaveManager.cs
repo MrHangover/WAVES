@@ -30,6 +30,8 @@ public class WaveManager : MonoBehaviour {
     public float singleFrequency = 0f;
     public GameObject colliderPillar;
     public GameObject[] visualPillar;
+    public bool isScrolling = true;
+    public bool isMakingWaves = true;
 
 	public float amplitudeModifier = 2f;
 
@@ -68,7 +70,6 @@ public class WaveManager : MonoBehaviour {
         {
             //Debug.Log("Scrolling left!");
             visualPillars[0].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
-
             pillarPos = visualPillars[0].transform.position;
         }
         else
@@ -80,7 +81,7 @@ public class WaveManager : MonoBehaviour {
 
         float freq = 0f;
         float amp = 0f;
-        if (frequencyAndAmp.Count > 0)
+        if (frequencyAndAmp.Count > 0 && isMakingWaves)
         {
 			if (FrequencyAnalysis.instance != null) {
 				//freq = MapToCalibration((FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key)));

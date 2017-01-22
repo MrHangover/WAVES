@@ -5,8 +5,9 @@ using UnityEngine;
 public class BallController : MonoBehaviour {
 
     public float leftMoveLimit = -7f;
-    public float rightMoveLimit = 0f;
-    public float centerLimit = -3f;
+    public float rightMoveLimit = 4f;
+    public float leftCenter = -3f;
+    public float rightCenter = 0;
     public float rightMaxSpeed = 5f;
     public float leftMaxSpeed = -5f;
 
@@ -17,23 +18,30 @@ public class BallController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(transform.position.x < centerLimit && transform.position.x >= leftMoveLimit)
+        if (WaveManager.instance.isScrolling)
         {
-            WaveManager.instance.scrollSpeed = ((centerLimit - transform.position.x) / (centerLimit - leftMoveLimit)) * leftMaxSpeed;
-            //Debug.Log("Left speed: " + ((centerLimit - transform.position.x) / (centerLimit - leftMaxSpeed)) * leftMaxSpeed);
-        }
-        else if(transform.position.x > centerLimit && transform.position.x < rightMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed;
-            //Debug.Log("Right speed: " + ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed);
-        }
-        else if(transform.position.x < leftMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = leftMaxSpeed;
-        }
-        else if(transform.position.x > rightMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = rightMaxSpeed;
+            if (transform.position.x < leftCenter && transform.position.x >= leftMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = ((leftCenter - transform.position.x) / (leftCenter - leftMoveLimit)) * leftMaxSpeed;
+                //Debug.Log("Left speed: " + ((centerLimit - transform.position.x) / (centerLimit - leftMaxSpeed)) * leftMaxSpeed);
+            }
+            else if (transform.position.x > rightCenter && transform.position.x < rightMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed;
+                //Debug.Log("Right speed: " + ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed);
+            }
+            else if (transform.position.x < leftMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = leftMaxSpeed;
+            }
+            else if (transform.position.x > rightMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = rightMaxSpeed;
+            }
+            else
+            {
+                WaveManager.instance.scrollSpeed = 0f;
+            }
         }
         else
         {
@@ -62,15 +70,15 @@ public class BallController : MonoBehaviour {
 
         //Check to see if it overlaps a ground tile. If it does, teleport it to the top of that tile.
         int layermask = 1 << 25;//only pillars
-        //Collider2D foundCol = Physics2D.OverlapCircle(transform.position, sphereCollider.bounds.extents.y*0.8f, layermask,Camera.main.transform.position.z);
-        Collider2D foundCol = Physics2D.OverlapPoint(transform.position, layermask, Camera.main.transform.position.z, 1000);
+        Collider2D foundCol = Physics2D.OverlapCircle(transform.position, sphereCollider.bounds.extents.y*0.5f, layermask,Camera.main.transform.position.z);
+        //Collider2D[] foundCol = Physics2D.OverlapPointAll(transform.position, layermask, Camera.main.transform.position.z);
 
-        if (foundCol)
+        if (foundCol !=null)
         {
             Vector3 pos = transform.position;
             //pos.y = foundCol.bounds.extents.y + foundCol.transform.position.y + 0.01f;
             pos.y = foundCol.transform.position.y + 0.01f;
-            Debug.Log("Player pos: " + pos + "; foundCol.transform.position: " + foundCol.transform.position);
+            //Debug.Log("Player pos: " + pos + "; foundCol.transform.position: " + foundCol.transform.position);
             transform.position = pos;
         }
         
@@ -91,7 +99,8 @@ public class BallController : MonoBehaviour {
 
         if(transform.position.y < bottomBound)
         {
-            newPos.y = bottomBound;
+            //newPos.y = bottomBound;
+            newPos.y = topBound*0.75f;
             newVel.y = 0;
         }
         else if(transform.position.y > topBound)
