@@ -26,6 +26,8 @@ public class LightningScript : MonoBehaviour {
 	Vector3 finalRotationV3 = new Vector3(0,0,56);
 	Quaternion finalRotation;
 
+    Vector3 lightningDestination;
+
     // Use this for initialization
     void Start () {
 
@@ -54,8 +56,9 @@ public class LightningScript : MonoBehaviour {
 			gameObject.transform.rotation = Quaternion.Lerp(finalRotation, origRot, timer/timerMax);
 			gameObject.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(0.3f,0.3f,0.3f), timer/timerMax);
 
-			//+xOffset
-			gameObject.transform.localPosition = Vector2.Lerp (prevPos, new Vector2 ((pitchValue * posDif / pitchDif) * 2 + minPos , transform.localPosition.y), Time.deltaTime * 1.5f);
+            //+xOffset
+            //gameObject.transform.localPosition = Vector2.Lerp(prevPos, new Vector2((pitchValue * posDif / pitchDif) * 2 + minPos, transform.localPosition.y), Time.deltaTime * 1.5f);
+            gameObject.transform.localPosition = Vector2.Lerp (prevPos, new Vector2 (Minotaur.transform.position.x, 0), Time.deltaTime * 1.5f);
 			prevPos = gameObject.transform.localPosition;
         }
         else
@@ -83,6 +86,7 @@ public class LightningScript : MonoBehaviour {
 		this.origRot = origRot;
         this.timerMax = animationDuration;
         timer = timerMax;
+
     }
 
 }
