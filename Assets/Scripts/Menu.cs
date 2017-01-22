@@ -17,6 +17,9 @@ public class Menu : MonoBehaviour {
 
 	[SerializeField] GameObject calibration;
 
+	[SerializeField] GameObject barParent;
+	[SerializeField] GameObject barText;
+
 	// Use this for initialization
 	void Start () {
 		for (int i = 0; i < Microphone.devices.Length; i++) {
@@ -32,6 +35,10 @@ public class Menu : MonoBehaviour {
 	void Update () {
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			OpenCloseMenu ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.F)) {
+			ShowHideBars ();
 		}
 		
 	}
@@ -89,5 +96,9 @@ public class Menu : MonoBehaviour {
 		calibration.SetActive (true);
 	}
 
+	void ShowHideBars(){
+		barParent.SetActive (!barParent.activeInHierarchy);
+		barText.SetActive (!barText.activeInHierarchy);
+	}
 
 }

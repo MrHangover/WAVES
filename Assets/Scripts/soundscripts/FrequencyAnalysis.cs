@@ -13,6 +13,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	public AudioSource aso;
 
+	[SerializeField] Transform barParent;
 	public int numSamples = 2048;
 	public int samplesToTake = 64;
 	public GameObject abar;
@@ -88,6 +89,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 				float xpos = i * spacing - 8.0f;
 				Vector3 positionleft = new Vector3 (xpos, 3, 0);
 				thebarsleft [i] = (GameObject)Instantiate (abar, positionleft, Quaternion.identity) as GameObject;
+				thebarsleft [i].transform.SetParent (barParent,false);
 				thebarsleft [i].transform.localScale = new Vector3 (width, 1, 0.2f);
 			}
 		}
@@ -115,29 +117,29 @@ public class FrequencyAnalysis : MonoBehaviour {
 		for (int i = 0; i < samplesToTake; i++) {
 			if (float.IsInfinity (numberleft [i]) || float.IsNaN (numberleft [i])) {
 			} else {
+				if (i > 3) {
+					//if(maxN > 0 && maxN < numSamples - 1){ //interpolate index using neighbors
+					//		float dl = numberleft[maxN - 1] / numberleft[maxN];
+					//	float dr = numberleft[maxN + 1] / numberleft[maxN];
+					//	freq = 0.5f * (dr*dr-dl*dl);
 
-				//if(maxN > 0 && maxN < numSamples - 1){ //interpolate index using neighbors
-				//		float dl = numberleft[maxN - 1] / numberleft[maxN];
-				//	float dr = numberleft[maxN + 1] / numberleft[maxN];
-				//	freq = 0.5f * (dr*dr-dl*dl);
+					specLeft = numberleft [i];
+					if (specLeft != 0) {
+						specLeft *= 10f;
+						specLeft = Mathf.Log10 (specLeft);
+						specLeft = 1 / specLeft;
+					}
 
-				specLeft = numberleft [i];
-				if (specLeft != 0) {
-					specLeft *= 10f;
-					specLeft = Mathf.Log10 (specLeft);
-					specLeft = 1/specLeft;
-				}
+					specLeft = Mathf.Abs (specLeft);
 
-				specLeft = Mathf.Abs (specLeft);
-
-				//print (numberleft[i]+" "+numberright[i]);
+					//print (numberleft[i]+" "+numberright[i]);
 
                
-				if (bars) {
-					thebarsleft [i].transform.localScale = new Vector3 (width, specLeft, 0.2f);
-				}
+					if (bars) {
+						thebarsleft [i].transform.localScale = new Vector3 (width, Mathf.Clamp(specLeft,0,2), 0.2f);
+					}
 
-                /*
+					/*
                 //testing
                 if (i % 10 == 0)
                 {
@@ -146,10 +148,12 @@ public class FrequencyAnalysis : MonoBehaviour {
                 else
                     specLeft = 0;
                 */
-                //specLeft is the amplitude registered for the current frequency range
-				//if(i > 3){
-					registerLocalMaximums(specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
-				//}
+					//specLeft is the amplitude registered for the current frequency range
+
+					registerLocalMaximums (specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
+				} else {
+					thebarsleft [i].transform.localScale = Vector3.zero;
+				}
                
 
             }
