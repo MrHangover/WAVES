@@ -10,12 +10,17 @@ public class WaveManager : MonoBehaviour {
     const float PILLAR_COLLIDER_WIDTH = 0.1f;
     const float PILLAR_START_POS = -10f;
     const float PILLAR_END_POS = 10f;
+    const float GRASS_START_POS = -15f;
+    const float GRASS_END_POS = 15f;
+    const float GRASS_WIDTH = 6.35f;
     const float CURVE_WIDTH = 1.5f;
 
     //Public statics
     public static WaveManager instance = null;
 
     //Publics
+    [Range(-8f, 0f)]
+    public float grassYPosition = -8f;
     [Range(-6f, 6f)]
     public float pillarYPosition = 0f;
     [Range(-10, 10)]
@@ -30,6 +35,7 @@ public class WaveManager : MonoBehaviour {
     public float singleFrequency = 0f;
     public GameObject colliderPillar;
     public GameObject[] visualPillar;
+    public GameObject[] grassTypes;
     public bool isScrolling = true;
     public bool isMakingWaves = true;
 
@@ -38,6 +44,7 @@ public class WaveManager : MonoBehaviour {
     //Privates
     List<WaveObject> colliderPillars;
     List<WaveObject> visualPillars;
+    List<GameObject> grass;
 	List<Vector2> previousColliderPillarPositions;
     List<Vector3> previousVisualPillarPositions;
 
@@ -66,17 +73,22 @@ public class WaveManager : MonoBehaviour {
 
         //Move the start or end pillar based on scrollspeed
         Vector3 pillarPos = visualPillars[0].transform.position;
+        Vector3 grassPos = grass[0].transform.position;
         if (scrollSpeed >= 0f)
         {
             //Debug.Log("Scrolling left!");
             visualPillars[0].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
+            grass[0].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = visualPillars[0].transform.position;
+            grassPos = grass[0].transform.position;
         }
         else
         {
             //Debug.Log("Scrolling right!");
             visualPillars[visualPillars.Count - 1].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
+            grass[grass.Count - 1].transform.position -= Vector3.right * scrollSpeed * Time.fixedDeltaTime;
             pillarPos = visualPillars[visualPillars.Count - 1].transform.position;
+            grassPos = grass[grass.Count - 1].transform.position;
         }
 
         float freq = 0f;
@@ -278,6 +290,47 @@ public class WaveManager : MonoBehaviour {
             }
         }
         #endregion
+
+        //Moving the grass
+        #region grass
+        for (int i = 0; i < grass.Count; i++)
+        {
+            if (grass[i] != null)
+            {
+
+                //Move all grass based on a single grass at the start or end.
+                if (scrollSpeed >= 0f)
+                {
+                    grass[i].transform.position = new Vector3(grassPos.x + i * GRASS_WIDTH,
+                                                              grassYPosition,
+                                                              pillarLayer);
+                }
+                else
+                {
+                    grass[i].transform.position = new Vector3(grassPos.x - GRASS_WIDTH * ((grass.Count - 1) - i),
+                                                              grassYPosition,
+                                                              pillarLayer);
+                }
+
+                //Add new grass at the start or end if some grass reached the edge.
+                if (scrollSpeed >= 0f && grass[i].transform.position.x < GRASS_START_POS)
+                {
+                    Destroy(grass[i]);
+                    GameObject newGrass = Instantiate(grassTypes[Random.Range(0, grassTypes.Length)], new Vector3(GRASS_END_POS, grassYPosition, pillarLayer), Quaternion.identity);
+                    grass.Add(newGrass);
+                    //Don't remove the reference here, as it will create an infinite loop!
+                }
+                else if (scrollSpeed < 0f && grass[i].transform.position.x > GRASS_END_POS)
+                {
+                    float difference = grass[i].transform.position.x - GRASS_END_POS;
+                    Destroy(grass[i]);
+                    GameObject newGrass = Instantiate(grassTypes[Random.Range(0, grassTypes.Length)], new Vector3(GRASS_START_POS + difference, grassYPosition, pillarLayer), Quaternion.identity);
+                    grass.Insert(0, newGrass);
+                    i++; //skip the (now null) game object as we just checked it
+                }
+            }
+        }
+        #endregion
     }
 
     //Hopefully this is a gaussian function
@@ -296,6 +349,15 @@ public class WaveManager : MonoBehaviour {
             {
                 visualPillars.RemoveAt(i);
 				previousVisualPillarPositions.RemoveAt (i);
+                i--;
+            }
+        }
+
+        for (int i = 0; i < grass.Count; i++)
+        {
+            if (grass[i] == null)
+            {
+                grass.RemoveAt(i);
                 i--;
             }
         }
@@ -335,10 +397,26 @@ public class WaveManager : MonoBehaviour {
         }
     }
 
+    void SpawnGrass()
+    {
+        float width = GRASS_END_POS - GRASS_START_POS;
+        int numOfGrass = (int)(width / GRASS_WIDTH);
+        grass = new List<GameObject>();
+
+        int count = 0;
+        for (float x = GRASS_START_POS; x < GRASS_END_POS; x += GRASS_WIDTH)
+        {
+            GameObject grassInstance = Instantiate(grassTypes[Random.Range(0, grassTypes.Length)], new Vector3(x, grassYPosition, pillarLayer), Quaternion.identity);
+            grass.Add(grassInstance);
+            count++;
+        }
+    }
+
     public void Init()
     {
         SpawnColliderPillars();
         SpawnVisualPillars();
+        SpawnGrass();
     }
 
 
