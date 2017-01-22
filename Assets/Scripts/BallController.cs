@@ -23,12 +23,12 @@ public class BallController : MonoBehaviour {
             if (transform.position.x < leftCenter && transform.position.x >= leftMoveLimit)
             {
                 WaveManager.instance.scrollSpeed = ((leftCenter - transform.position.x) / (leftCenter - leftMoveLimit)) * leftMaxSpeed;
-                Debug.Log("Left speed: " + ((leftCenter - transform.position.x) / (leftCenter - leftMaxSpeed)) * leftMaxSpeed);
+                //Debug.Log("Left speed: " + ((leftCenter - transform.position.x) / (leftCenter - leftMaxSpeed)) * leftMaxSpeed);
             }
             else if (transform.position.x > rightCenter && transform.position.x < rightMoveLimit)
             {
                 WaveManager.instance.scrollSpeed = ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed;
-                Debug.Log("Right speed: " + ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed);
+                //Debug.Log("Right speed: " + ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed);
             }
             else if (transform.position.x < leftMoveLimit)
             {
