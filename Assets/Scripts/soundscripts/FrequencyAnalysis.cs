@@ -74,8 +74,12 @@ public class FrequencyAnalysis : MonoBehaviour {
 		print (Microphone.devices.Length);
 		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
 		while (!(Microphone.GetPosition(null) > 0)){}
-		aso.Play ();
 		aso.loop = true;
+
+		aso.Play ();
+
+
+
 
 		numberleft = new float[numSamples];
 		volumeSamples = new float[numSamples];
@@ -100,9 +104,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		numberleft = new float[numSamples];
-
 		aso.GetSpectrumData (numberleft, 0,FFTWindow.BlackmanHarris);
-
 		//	22050/samplenumber = 10.7
 		//	TO FIND ELEMENT IN ARRAY: 
 		//	FrequencyYouWant / 10.7(result from last)
@@ -223,6 +225,7 @@ public class FrequencyAnalysis : MonoBehaviour {
 		avgFreq /= frequencyAndAmp.Count;
 		//print ("----------------------------");
 		//print (avgFreq);
+
 	}
 
 
