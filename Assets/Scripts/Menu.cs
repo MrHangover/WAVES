@@ -21,6 +21,9 @@ public class Menu : MonoBehaviour {
 
 	[SerializeField] GameObject barParent;
 	[SerializeField] GameObject barText;
+	[SerializeField] Toggle avgToggle;
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -43,6 +46,11 @@ public class Menu : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.F)) {
 			ShowHideBars ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.A)) {
+			WaveManager.instance.useAvg = !WaveManager.instance.useAvg;
+			avgToggle.isOn = WaveManager.instance.useAvg;
 		}
 		
 	}
