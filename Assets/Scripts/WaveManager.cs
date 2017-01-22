@@ -40,6 +40,8 @@ public class WaveManager : MonoBehaviour {
     public bool isMakingWaves = true;
 
 	public float amplitudeModifier = 2f;
+	public float mapMin = -25f;
+	public float mapMax = 10f;
 
     //Privates
     List<WaveObject> colliderPillars;
@@ -104,7 +106,7 @@ public class WaveManager : MonoBehaviour {
         }
 		if (FrequencyAnalysis.instance != null) {
 			//float hejmartin = FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key);
-			//Debug.Log("FREQ: " +frequencyAndAmp[0].Key +"    "+ freq+"   AMP: "+amp);
+			Debug.Log("FREQ: " +frequencyAndAmp[0].Key +"    "+ freq+"   AMP: "+amp);
 		}
 
         //Moving the physical pillars
@@ -428,7 +430,7 @@ public class WaveManager : MonoBehaviour {
 	}
 
 	public float TotalMap(float freqtoMap){
-		float mapmax = 10; float mapmin = -25;
+		float mapmax = mapMax; float mapmin = mapMin;
 		return (((freqtoMap - mapmin) * (mapmax - mapmin)) / (684.8f - 0)) + mapmin;
 	}
 
