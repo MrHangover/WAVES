@@ -17,23 +17,30 @@ public class BallController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(transform.position.x < centerLimit && transform.position.x >= leftMoveLimit)
+        if (WaveManager.instance.isScrolling)
         {
-            WaveManager.instance.scrollSpeed = ((centerLimit - transform.position.x) / (centerLimit - leftMoveLimit)) * leftMaxSpeed;
-            //Debug.Log("Left speed: " + ((centerLimit - transform.position.x) / (centerLimit - leftMaxSpeed)) * leftMaxSpeed);
-        }
-        else if(transform.position.x > centerLimit && transform.position.x < rightMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed;
-            //Debug.Log("Right speed: " + ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed);
-        }
-        else if(transform.position.x < leftMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = leftMaxSpeed;
-        }
-        else if(transform.position.x > rightMoveLimit)
-        {
-            WaveManager.instance.scrollSpeed = rightMaxSpeed;
+            if (transform.position.x < centerLimit && transform.position.x >= leftMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = ((centerLimit - transform.position.x) / (centerLimit - leftMoveLimit)) * leftMaxSpeed;
+                //Debug.Log("Left speed: " + ((centerLimit - transform.position.x) / (centerLimit - leftMaxSpeed)) * leftMaxSpeed);
+            }
+            else if (transform.position.x > centerLimit && transform.position.x < rightMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed;
+                //Debug.Log("Right speed: " + ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed);
+            }
+            else if (transform.position.x < leftMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = leftMaxSpeed;
+            }
+            else if (transform.position.x > rightMoveLimit)
+            {
+                WaveManager.instance.scrollSpeed = rightMaxSpeed;
+            }
+            else
+            {
+                WaveManager.instance.scrollSpeed = 0f;
+            }
         }
         else
         {
