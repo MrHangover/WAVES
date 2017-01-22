@@ -13,6 +13,9 @@ public class HermesRotation : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.Rotate(0f, 0f, -WaveManager.instance.scrollSpeed * ROTATION_SPEED * Time.deltaTime);
+        if (WaveManager.instance.isScrolling)
+        {
+            transform.Rotate(0f, 0f, -WaveManager.instance.scrollSpeed * ROTATION_SPEED * Time.deltaTime);
+        }
 	}
 }
