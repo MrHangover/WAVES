@@ -22,8 +22,8 @@ public class LightningScript : MonoBehaviour {
 
 	Vector2 prevPos = Vector2.zero;
 	Quaternion origRot;
-	[SerializeField]
-	Vector3 finalRotationV3 = new Vector3(0,0,0);
+	//[SerializeField]
+	Vector3 finalRotationV3 = new Vector3(0,0,56);
 	Quaternion finalRotation;
 
     // Use this for initialization
@@ -58,10 +58,9 @@ public class LightningScript : MonoBehaviour {
 			gameObject.transform.localPosition = Vector2.Lerp (prevPos, new Vector2 ((pitchValue * posDif / pitchDif) * 2 + minPos , transform.localPosition.y), Time.deltaTime * 1.5f);
 			prevPos = gameObject.transform.localPosition;
         }
-
         else
         {
-            
+            /*
 			RaycastHit2D hit = Physics2D.Raycast(transform.localPosition, Vector2.down);
 			if (hit && hit.collider.tag == "Minotaur")
             {
@@ -69,14 +68,21 @@ public class LightningScript : MonoBehaviour {
                 Destroy(Minotaur);
             }
             timer = temp;
+            */
+            Debug.Log("test");
+            Destroy(Minotaur);
+            gameObject.SetActive(false);
         }
  
     }
 
-	public void SetValues(Vector3 newPrevPos, Quaternion origRot){
+	public void SetValues(Vector3 newPrevPos, Quaternion origRot, float animationDuration)
+    {
 
 		this.prevPos = newPrevPos;
 		this.origRot = origRot;
-	}
+        this.timerMax = animationDuration;
+        timer = timerMax;
+    }
 
 }
