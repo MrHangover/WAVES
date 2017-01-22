@@ -62,15 +62,15 @@ public class BallController : MonoBehaviour {
 
         //Check to see if it overlaps a ground tile. If it does, teleport it to the top of that tile.
         int layermask = 1 << 25;//only pillars
-        //Collider2D foundCol = Physics2D.OverlapCircle(transform.position, sphereCollider.bounds.extents.y*0.8f, layermask,Camera.main.transform.position.z);
-        Collider2D foundCol = Physics2D.OverlapPoint(transform.position, layermask, Camera.main.transform.position.z, 1000);
+        Collider2D foundCol = Physics2D.OverlapCircle(transform.position, sphereCollider.bounds.extents.y*0.5f, layermask,Camera.main.transform.position.z);
+        //Collider2D[] foundCol = Physics2D.OverlapPointAll(transform.position, layermask, Camera.main.transform.position.z);
 
-        if (foundCol)
+        if (foundCol !=null)
         {
             Vector3 pos = transform.position;
             //pos.y = foundCol.bounds.extents.y + foundCol.transform.position.y + 0.01f;
             pos.y = foundCol.transform.position.y + 0.01f;
-            Debug.Log("Player pos: " + pos + "; foundCol.transform.position: " + foundCol.transform.position);
+            //Debug.Log("Player pos: " + pos + "; foundCol.transform.position: " + foundCol.transform.position);
             transform.position = pos;
         }
         
@@ -91,7 +91,8 @@ public class BallController : MonoBehaviour {
 
         if(transform.position.y < bottomBound)
         {
-            newPos.y = bottomBound;
+            //newPos.y = bottomBound;
+            newPos.y = topBound*0.75f;
             newVel.y = 0;
         }
         else if(transform.position.y > topBound)
