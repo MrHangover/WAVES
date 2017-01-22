@@ -5,9 +5,9 @@ using UnityEngine;
 public class BallController : MonoBehaviour {
 
     public float leftMoveLimit = -7f;
-    public float rightMoveLimit = 4f;
+    public float rightMoveLimit = 7f;
     public float leftCenter = -3f;
-    public float rightCenter = 0;
+    public float rightCenter = 1f;
     public float rightMaxSpeed = 5f;
     public float leftMaxSpeed = -5f;
 
@@ -23,12 +23,12 @@ public class BallController : MonoBehaviour {
             if (transform.position.x < leftCenter && transform.position.x >= leftMoveLimit)
             {
                 WaveManager.instance.scrollSpeed = ((leftCenter - transform.position.x) / (leftCenter - leftMoveLimit)) * leftMaxSpeed;
-                //Debug.Log("Left speed: " + ((centerLimit - transform.position.x) / (centerLimit - leftMaxSpeed)) * leftMaxSpeed);
+                Debug.Log("Left speed: " + ((leftCenter - transform.position.x) / (leftCenter - leftMaxSpeed)) * leftMaxSpeed);
             }
             else if (transform.position.x > rightCenter && transform.position.x < rightMoveLimit)
             {
                 WaveManager.instance.scrollSpeed = ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed;
-                //Debug.Log("Right speed: " + ((transform.position.x - centerLimit) / (rightMoveLimit - centerLimit)) * rightMaxSpeed);
+                Debug.Log("Right speed: " + ((transform.position.x - rightCenter) / (rightMoveLimit - rightCenter)) * rightMaxSpeed);
             }
             else if (transform.position.x < leftMoveLimit)
             {
