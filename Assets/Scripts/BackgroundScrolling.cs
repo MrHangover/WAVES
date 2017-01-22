@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LevelScroll : MonoBehaviour {
+public class BackgroundScrolling : MonoBehaviour {
+
+    const float SCROLL_SCALE = 0.25f;
 
 	// Use this for initialization
 	void Start () {
@@ -13,7 +15,7 @@ public class LevelScroll : MonoBehaviour {
 	void Update () {
         if (WaveManager.instance.isScrolling)
         {
-            transform.position -= Vector3.right * WaveManager.instance.scrollSpeed * Time.deltaTime;
+            transform.position -= Vector3.right * WaveManager.instance.scrollSpeed * Time.deltaTime * SCROLL_SCALE;
         }
-	}
+    }
 }
