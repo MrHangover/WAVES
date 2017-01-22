@@ -13,6 +13,8 @@ public class Menu : MonoBehaviour {
 
 	[SerializeField] Text volumeText;
 	[SerializeField] Text noiseText;
+	[SerializeField] Text freqMinText;
+	[SerializeField] Text freqMaxText;
 	[SerializeField] GameObject menuPanel;
 
 	[SerializeField] GameObject calibration;
@@ -29,6 +31,8 @@ public class Menu : MonoBehaviour {
 		}
 		volumeText.text = micVolumeScale.ToString ();
 		noiseText.text = noiseLevel.ToString();
+		freqMaxText.text = WaveManager.instance.mapMax.ToString();
+		freqMinText.text = WaveManager.instance.mapMin.ToString ();
 	}
 	
 	// Update is called once per frame
@@ -79,16 +83,17 @@ public class Menu : MonoBehaviour {
 	}
 
 	public void OnMaxChange(Slider sl){
-		if (FrequencyAnalysis.instance != null) {
-			FrequencyAnalysis.instance.calibrationFreqMax = sl.value;
-			print ("CHANGING MAX " + sl.value);
+		if (WaveManager.instance != null) {
+			WaveManager.instance.mapMax = sl.value;
 		}
+		freqMaxText.text = sl.value.ToString ();
 	}
 
 	public void OnMinChange(Slider sl){
-		if (FrequencyAnalysis.instance != null) {
-			FrequencyAnalysis.instance.calibrationFreqMin = sl.value;
+		if (WaveManager.instance != null) {
+			WaveManager.instance.mapMin = sl.value;
 		}
+		freqMinText.text = sl.value.ToString ();
 	}
 
 
