@@ -102,8 +102,10 @@ public class WaveManager : MonoBehaviour {
 			}
 
         }
-		float hejmartin = FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key);
-		Debug.Log("FREQ: " +frequencyAndAmp[0].Key +"   "+ hejmartin + "    "+ freq+"   AMP: "+amp);
+		if (FrequencyAnalysis.instance != null) {
+			//float hejmartin = FrequencyAnalysis.instance.MapToCalibration(frequencyAndAmp[0].Key);
+			//Debug.Log("FREQ: " +frequencyAndAmp[0].Key +"    "+ freq+"   AMP: "+amp);
+		}
 
         //Moving the physical pillars
         #region physicalPillars
@@ -426,7 +428,7 @@ public class WaveManager : MonoBehaviour {
 	}
 
 	public float TotalMap(float freqtoMap){
-		float mapmax = 10; float mapmin = -20;
+		float mapmax = 10; float mapmin = -25;
 		return (((freqtoMap - mapmin) * (mapmax - mapmin)) / (684.8f - 0)) + mapmin;
 	}
 
