@@ -103,7 +103,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		numberleft = new float[numSamples];
+
+        if (thebarsleft.Length == 0 || thebarsleft[0] == null)
+            return;
+
+            numberleft = new float[numSamples];
 		aso.GetSpectrumData (numberleft, 0,FFTWindow.BlackmanHarris);
 		//	22050/samplenumber = 10.7
 		//	TO FIND ELEMENT IN ARRAY: 
@@ -153,8 +157,9 @@ public class FrequencyAnalysis : MonoBehaviour {
 					//specLeft is the amplitude registered for the current frequency range
 
 					registerLocalMaximums (specLeft, i, ref currentLocalMaximum, ref canSaveLM, localMaximums);
-				} else {
-					thebarsleft [i].transform.localScale = Vector3.zero;
+				} else 
+                {
+                    thebarsleft[i].transform.localScale = Vector3.zero;
 				}
                
 

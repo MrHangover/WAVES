@@ -74,6 +74,9 @@ public class WaveManager : MonoBehaviour {
 
         CleanPillarList();
 
+        if (visualPillars.Count == 0)
+            return;
+
         //Move the start or end pillar based on scrollspeed
         Vector3 pillarPos = visualPillars[0].transform.position;
         Vector3 grassPos = grass[0].transform.position;
