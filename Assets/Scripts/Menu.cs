@@ -65,6 +65,11 @@ public class Menu : MonoBehaviour {
 	}
 
 
+    public void ExitApp()
+    {
+        Application.Quit();
+    }
+
 	public void ChangeMicrophone(Button b){
 		if (Microphone.devices.Length > mics.IndexOf(b)) {
 			if (FrequencyAnalysis.instance != null) {
