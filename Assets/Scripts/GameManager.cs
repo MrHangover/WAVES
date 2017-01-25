@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager instance = null;
 
+    
+
     public Level level = Level.TestLvl;
     
     public enum Level
@@ -32,14 +34,16 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        /*
         if(SceneManager.GetActiveScene().name != level.ToString())
         {
             SceneManager.LoadScene(level.ToString());
         }
+        */
 	}
 
     public void Init()
-    {
+    { 
 
     }
 }

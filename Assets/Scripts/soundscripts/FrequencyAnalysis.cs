@@ -6,18 +6,33 @@ using System.Linq;
 
 public class FrequencyAnalysis : MonoBehaviour {
 
-	//Public statics
-	public static FrequencyAnalysis instance = null;
+    const string barParentGO = "BarParent";
 
-	string micstring = "Built-in Microphone";
+    //Public statics
+    public static FrequencyAnalysis instance = null;
+
+	//string micstring = "Built-in Microphone";
 
 	public AudioSource aso;
 
-	[SerializeField] Transform barParent;
-	public int numSamples = 2048;
+    [Header("BarParent is assigned from script.")]
+    //[Space(5, order = 1)]
+    [Header("You must have a 'BarParent' GameObject in the scene,")]
+    [Space(5, order = 1)]
+
+    [Tooltip("BarParent is assigned from script. You must have a 'BarParent' GameObject in the scene.")]
+    [SerializeField]
+    Transform _barParent;
+    public Transform barParent { 
+        get { return _barParent; }
+        protected set { _barParent = value; } 
+    }
+    
+
+    public int numSamples = 2048;
 	public int samplesToTake = 64;
 	public GameObject abar;
-	public bool bars = false;
+	public bool bars = true;
 
 	// Private Variables
 	float[] numberleft;
@@ -28,11 +43,11 @@ public class FrequencyAnalysis : MonoBehaviour {
 	float width;
 
 	public float pitch;
-	float threshold = 0.02f;
+	//float threshold = 0.02f;
 
 	[SerializeField] float volumeScale = 5;
 	float volumeRef = 0.1f;
-	float specScale = 20f;
+	//float specScale = 20f;
 	float prevVolume;
 
 
@@ -71,38 +86,65 @@ public class FrequencyAnalysis : MonoBehaviour {
 	}
 
     void Start() {
-		print (Microphone.devices.Length);
-		aso.clip = Microphone.Start (Microphone.devices[microphoneNr], true, 1, 44100);
-		while (!(Microphone.GetPosition(null) > 0)){}
-		aso.loop = true;
 
-		aso.Play ();
+        print(Microphone.devices.Length);
+        aso.clip = Microphone.Start(Microphone.devices[microphoneNr], true, 1, 44100);
+        while (!(Microphone.GetPosition(null) > 0)) { }
 
-
-
-
-		numberleft = new float[numSamples];
+        numberleft = new float[numSamples];
 		volumeSamples = new float[numSamples];
-
-		if (bars) {
-			thebarsleft = new GameObject[samplesToTake];
-			volumenumber = 0;
-			spacing = 0.4f - (samplesToTake * 0.001f);
-			width = 0.3f - (samplesToTake * 0.001f);
-			for (int i = 0; i < samplesToTake; i++) {
-				float xpos = i * spacing - 8.0f;
-				Vector3 positionleft = new Vector3 (xpos, 3, 0);
-				thebarsleft [i] = (GameObject)Instantiate (abar, positionleft, Quaternion.identity) as GameObject;
-				thebarsleft [i].transform.SetParent (barParent,false);
-				thebarsleft [i].transform.localScale = new Vector3 (width, 1, 0.2f);
-			}
-		}
         localMaximums = new SortedDictionary<float, int>();
         currentLocalMaximum = new KeyValuePair<float, int>(-1,-1);
     }
 
-	// Update is called once per frame
-	void Update () {
+    public void Init()
+    {
+        //print(Microphone.devices.Length);
+        //aso.clip = Microphone.Start(Microphone.devices[microphoneNr], true, 1, 44100);
+        //while (!(Microphone.GetPosition(null) > 0)) { }
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 0 ||
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings-1
+            )
+        {
+            aso.loop = false;
+            aso.Stop();
+        }
+        else
+        {
+            aso.loop = true;
+            aso.Play();
+        }
+
+        GameObject bpgo = GameObject.Find(barParentGO);
+        if (bpgo == null)
+        {
+            Debug.LogError("You don't have a GameObject (parented to the Camera) named 'BarParent'.");
+        }
+        else
+        {
+            barParent = bpgo.transform;
+
+            if (bars)
+            {
+                thebarsleft = new GameObject[samplesToTake];
+                volumenumber = 0;
+                spacing = 0.4f - (samplesToTake * 0.001f);
+                width = 0.3f - (samplesToTake * 0.001f);
+                for (int i = 0; i < samplesToTake; i++)
+                {
+                    float xpos = i * spacing - 8.0f;
+                    Vector3 positionleft = new Vector3(xpos, 3, 0);
+                    thebarsleft[i] = (GameObject)Instantiate(abar, positionleft, Quaternion.identity) as GameObject;
+                    thebarsleft[i].transform.SetParent(barParent, false);
+                    thebarsleft[i].transform.localScale = new Vector3(width, 1, 0.2f);
+                }
+            }
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
 
         if (thebarsleft.Length == 0 || thebarsleft[0] == null)
             return;

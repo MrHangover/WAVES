@@ -10,7 +10,7 @@ public class RandomSoundPlayer : MonoBehaviour
     public float maxTime = 10f;
 
     float timer = 3f;
-    AudioSource audio;
+    new AudioSource audio;
 
 
     void Start()

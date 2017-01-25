@@ -17,30 +17,24 @@ Platform assembly: D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\B
 Loading D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\Builds\25-01-2017\VOG_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
 Platform assembly: D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\Builds\25-01-2017\VOG_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll (this message is harmless)
 Loading D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\Builds\25-01-2017\VOG_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll into Unity Child Domain
-- Completed reload, in  0.029 seconds
+- Completed reload, in  0.033 seconds
 Platform assembly: D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\Builds\25-01-2017\VOG_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: D:\#Repositories\GGJ2017 jan20 Godspeed\VoiceOfGod_GGJ17_01\Builds\25-01-2017\VOG_Data\Managed\System.dll (this message is harmless)
 desktop: 1920x1080 60Hz; virtual: 1920x2160 at 0,-1080
 <RI> Initializing input.
 <RI> Input initialized.
 <RI> Initialized touch support.
-UnloadTime: 0.902793 ms
-NullReferenceException: Object reference not set to an instance of an object
-  at System.Single.ToString () [0x00000] in <filename unknown>:0 
-  at Menu.Start () [0x00000] in <filename unknown>:0 
- 
-(Filename:  Line: -1)
-
-Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 2.837293 ms
-
-Unloading 14 unused Assets to reduce memory usage. Loaded Objects now: 955.
-Total: 1.118741 ms (FindLiveObjects: 0.096478 ms CreateObjectMapping: 0.052550 ms MarkObjects: 0.401925 ms  DeleteObjects: 0.567376 ms)
-
+UnloadTime: 3.770878 ms
 3
  
 (Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
 
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 5.950474 ms
+
+Unloading 13 unused Assets to reduce memory usage. Loaded Objects now: 961.
+Total: 0.693414 ms (FindLiveObjects: 0.059118 ms CreateObjectMapping: 0.035307 ms MarkObjects: 0.416295 ms  DeleteObjects: 0.181461 ms)
+
 Setting up 2 worker threads for Enlighten.
-  Thread -> id: 50bc -> priority: 1 
-  Thread -> id: 39cc -> priority: 1 
+  Thread -> id: 4bf4 -> priority: 1 
+  Thread -> id: 3f88 -> priority: 1 

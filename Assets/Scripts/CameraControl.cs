@@ -15,12 +15,12 @@ public class CameraControl : MonoBehaviour {
 	Vector3 pos;
 	[SerializeField] float mboundy = -4, boundy = 2f;
 
-    Vector3 origCamPos;
+    //Vector3 origCamPos;
     CameraShake cameraShake;
 
     // Use this for initialization
     void Start () {
-        origCamPos = transform.position;
+        //origCamPos = transform.position;
         cameraShake = transform.GetComponent<CameraShake>();
     }
 

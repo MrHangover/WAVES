@@ -6,6 +6,8 @@ public class ManagerLoader : MonoBehaviour {
 
     public GameObject waveManager;
     public GameObject gameManager;
+    public GameObject freqAnalysis;
+
 
 	// Use this for initialization
 	void Awake () {
@@ -17,11 +19,20 @@ public class ManagerLoader : MonoBehaviour {
         {
             Instantiate(gameManager);
         }
-	}
+
+        if (FrequencyAnalysis.instance == null)
+        {
+            Instantiate(freqAnalysis);
+        }
+    }
 
     void Start()
     {
+  
         WaveManager.instance.Init();
+
         GameManager.instance.Init();
+
+        FrequencyAnalysis.instance.Init();
     }
 }

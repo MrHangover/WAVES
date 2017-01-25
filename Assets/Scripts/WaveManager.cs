@@ -18,6 +18,7 @@ public class WaveManager : MonoBehaviour {
     //Public statics
     public static WaveManager instance = null;
 
+
     //Publics
     [Range(-8f, 0f)]
     public float grassYPosition = -8f;
@@ -379,8 +380,8 @@ public class WaveManager : MonoBehaviour {
 
     void SpawnColliderPillars()
     {
-        float width = PILLAR_END_POS - PILLAR_START_POS;
-        int numOfPillars = (int)(width / PILLAR_COLLIDER_WIDTH);
+        //float width = PILLAR_END_POS - PILLAR_START_POS;
+        //int numOfPillars = (int)(width / PILLAR_COLLIDER_WIDTH);
         colliderPillars = new List<WaveObject>();
         previousColliderPillarPositions = new List<Vector2>();
 
@@ -396,8 +397,8 @@ public class WaveManager : MonoBehaviour {
 
     void SpawnVisualPillars()
     {
-        float width = PILLAR_END_POS - PILLAR_START_POS;
-        int numOfPillars = (int)(width / PILLAR_VISUAL_WIDTH);
+        //float width = PILLAR_END_POS - PILLAR_START_POS;
+        //int numOfPillars = (int)(width / PILLAR_VISUAL_WIDTH);
         visualPillars = new List<WaveObject>();
         previousVisualPillarPositions = new List<Vector3> ();
 
@@ -413,8 +414,8 @@ public class WaveManager : MonoBehaviour {
 
     void SpawnGrass()
     {
-        float width = GRASS_END_POS - GRASS_START_POS;
-        int numOfGrass = (int)(width / GRASS_WIDTH);
+        //float width = GRASS_END_POS - GRASS_START_POS;
+        //int numOfGrass = (int)(width / GRASS_WIDTH);
         grass = new List<GameObject>();
 
         int count = 0;
@@ -431,6 +432,7 @@ public class WaveManager : MonoBehaviour {
         SpawnColliderPillars();
         SpawnVisualPillars();
         SpawnGrass();
+
     }
 
 

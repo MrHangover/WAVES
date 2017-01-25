@@ -55,3 +55,5 @@ MonoBehaviour:
     type: 2}
   gameManager: {fileID: 1384291445857206, guid: b92f18bd24118754d8eba9361153c845,
     type: 2}
+  freqAnalysis: {fileID: 1378734293407760, guid: 0c1bd54b160001b4f91e3b6c32f1c686,
+    type: 2}

@@ -39,11 +39,11 @@ public class LightningScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        float posDif = maxPos - minPos;
+        //float posDif = maxPos - minPos;
 
-        float pitchDif = 680;
+        //float pitchDif = 680;
 
-        float temp = 5f;
+        //float temp = 5f;
         if (WaveManager.instance != null)
         {
 			pitchValue = FrequencyAnalysis.instance.avgFreq;

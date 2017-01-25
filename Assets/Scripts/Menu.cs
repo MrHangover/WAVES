@@ -19,8 +19,8 @@ public class Menu : MonoBehaviour {
 
 	[SerializeField] GameObject calibration;
 
-	[SerializeField] GameObject barParent;
-	[SerializeField] GameObject barText;
+	//[SerializeField] GameObject barParent;
+	//[SerializeField] GameObject barText;
 	[SerializeField] Toggle avgToggle;
 
 
@@ -34,8 +34,11 @@ public class Menu : MonoBehaviour {
 		}
 		volumeText.text = micVolumeScale.ToString ();
 		noiseText.text = noiseLevel.ToString();
-		freqMaxText.text = WaveManager.instance.mapMax.ToString();
-		freqMinText.text = WaveManager.instance.mapMin.ToString ();
+        if (WaveManager.instance)
+        {
+            freqMaxText.text = WaveManager.instance.mapMax.ToString();
+            freqMinText.text = WaveManager.instance.mapMin.ToString();
+        }
 	}
 	
 	// Update is called once per frame
@@ -72,9 +75,8 @@ public class Menu : MonoBehaviour {
 
 	public void ChangeMicrophone(Button b){
 		if (Microphone.devices.Length > mics.IndexOf(b)) {
-			if (FrequencyAnalysis.instance != null) {
-				FrequencyAnalysis.instance.ResetMicrophone (Microphone.devices.ToList ().IndexOf (b.GetComponentInChildren<Text> ().text));
-			}
+			FrequencyAnalysis.instance.ResetMicrophone (Microphone.devices.ToList ().IndexOf (b.GetComponentInChildren<Text> ().text));
+			
 		}
 	}
 
@@ -89,9 +91,8 @@ public class Menu : MonoBehaviour {
 
 	public void OnNoiseChange(Slider sl){
 		noiseLevel = sl.value;
-		if (FrequencyAnalysis.instance != null) {
-			FrequencyAnalysis.instance.noiseLevel = noiseLevel;
-		}
+		FrequencyAnalysis.instance.noiseLevel = noiseLevel;
+		
 		noiseText.text = noiseLevel.ToString();
 	}
 
@@ -115,8 +116,14 @@ public class Menu : MonoBehaviour {
 	}
 
 	void ShowHideBars(){
-		barParent.SetActive (!barParent.activeInHierarchy);
-		barText.SetActive (!barText.activeInHierarchy);
-	}
+        /*
+        if (barParent)
+        {
+            barParent.SetActive(!barParent.activeInHierarchy);
+            barText.SetActive(!barText.activeInHierarchy);
+        }*/
+        FrequencyAnalysis.instance.barParent.gameObject.SetActive(!FrequencyAnalysis.instance.barParent.gameObject.activeInHierarchy);
+
+    }
 
 }
